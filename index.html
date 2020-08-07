@@ -12,12 +12,16 @@
     <div id="background"></div>
     <main>
         <section>
-           <div id="logo">
+            <div id="logo">
                 <h1 id="top" class="logoText">Skool</h1><h1 id="bottom" class="logoText">Czure</h1>
-           </div>
-            <input type="text" placeholder="Game ID" class="gameID" id="gameID">
-            <br>
-            <input type="button" value="Join" class="joinBtn" id="JoinBtn" onclick="join()">
+            </div>
+            <form id="myForm" name="myForm" onsubmit="go()">
+                <input type="text" placeholder="Game ID" class="gameID" id="gameID" maxlength="8" required>
+                <br>
+                <input name="joinBtn" type="submit" value="Join" class="joinBtn" onclick="buttonIndex=0" id="JoinBtn">
+                <br>
+                <input name="createBtn" type="submit" value="Create" class="joinBtn" onclick="buttonIndex=1" id="createBtn">
+            </form>
         </section>
     </main>
 </body>

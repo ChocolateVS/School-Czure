@@ -105,6 +105,7 @@ section h1, section p {
 .gameID {
     width:17em;
     height:3rem;
+    color:white;
     background-color:black;
     font-size: 1.25rem;
     outline: none;
@@ -123,6 +124,7 @@ section h1, section p {
 }
 
 .joinBtn {
+    margin-bottom:5px;
     width:17em;
     height:3rem;
     background-color:#e0a02b;
