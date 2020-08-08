@@ -2,6 +2,8 @@ var form = document.getElementById("myForm");
 
 var buttonIndex;
 
+let socket = new WebSocket("wss://hi"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
+
 function handleForm(event) { event.preventDefault(); } 
 form.addEventListener('submit', handleForm);
 
@@ -25,6 +27,9 @@ function go() {
     var userID = document.getElementById("userID").value;
     console.log("Game ID: " + roomID);
     console.log("User ID: " + userID);
+    
+    document.getElementById("message").style.visibility = "visible";
+    document.getElementById("loadingGIF").style.visibility = "visible";
     if (buttonIndex == 0) {
         joinRoom(roomID, userID);
     }
@@ -35,7 +40,7 @@ function go() {
 
 function joinRoom(roomID, userID) {
     
-    let socket = new WebSocket("wss://I ASSUME PORT OF THE SERVER THINGY GOES HERE");
+   
     
     socket.onopen = function(e) {
       console.log("Server Connection established");
@@ -52,21 +57,22 @@ function joinRoom(roomID, userID) {
       } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
-        alert('[close] Connection died');
+        console.log('[close] Connection died');
       }
     };
 
     socket.onerror = function(error) {
-      alert(`[error] ${error.message}`);
+      console.log(`[error] ${error.message}`);
+      displayError(error.message);
     };
 }
 
 function createRoom(roomID, userID) {
-    let socket = new WebSocket("wss://I ASSUME PORT OF THE SERVER THINGY GOES HERE");
-
+    let socket = new WebSocket("wss://h1");
+    
     socket.onopen = function(e) {
       console.log("Server Connection established");
-      socket.send({type:"create", id:roomID,name:userID});
+      socket.send({type:"connect", id:roomID, name:userID});
     };
 
     socket.onmessage = function(event) {
@@ -79,12 +85,29 @@ function createRoom(roomID, userID) {
       } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
-        alert('[close] Connection died');
+        console.log('[close] Connection died');
       }
     };
 
     socket.onerror = function(error) {
-      alert(`[error] ${error.message}`);
+      console.log(`[error] ${error.message}`);
+      displayError(error.message);
     };
 }
 
+function displayError(error) {
+    console.log("DISPLAYING ERROR");
+    document.getElementById("messagetxt").style.visibility = "visible";
+    document.getElementById("loadingGIF").style.visibility = "hidden";
+    document.getElementById("errorMessage").style.visibility = "visible";
+    document.getElementById("messagetxt").innerHTML = "Error: " + error;
+}
+
+function closeMSG() {
+    console.log("CLOSE ERROR MESSAGE");
+    document.getElementById("message").style.visibility = "hidden";
+    document.getElementById("messagetxt").style.visibility = "hidden";
+    document.getElementById("loadingGIF").style.visibility = "hidden";
+    document.getElementById("errorMessage").style.visibility = "hidden";
+    document.getElementById("messagetxt").innerHTML = "";
+}

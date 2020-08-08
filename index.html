@@ -1,31 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Skool Czure - Match Making</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--<link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon3.ico">-->
-    <link rel="stylesheet" type="text/css" media="screen and (min-device-width: 1000px)" href="assets/css/style.css" />
-    <!--<link rel="stylesheet" type="text/css" media="screen and (max-device-width: 1000px)" href="assets/css/mobile.css" />-->
-</head>
-
-<body>
-    <div id="background"></div>
-    <main>
-        <section>
-            <div id="logo">
-                <h1 id="top" class="logoText">Skool</h1><h1 id="bottom" class="logoText">Czure</h1>
+    <head>
+        <title>Skool Czure - Match Making</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!--<link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon3.ico">-->
+        <link rel="stylesheet" type="text/css" media="screen and (min-device-width: 1000px)" href="assets/css/style.css" />
+        <!--<link rel="stylesheet" type="text/css" media="screen and (max-device-width: 1000px)" href="assets/css/mobile.css" />-->
+    </head>
+    <div id="message">
+        <center>
+            <div id="loadingGIF"><img id="loading" src="assets/images/loadingTrans.gif"></div>
+            <div id="errorMessage">
+                <p id="messagetxt"></p>
+                <input name="closeBtn" type="button" value="OK" class="closeBtn" onclick="closeMSG()" id="closeBtn">
             </div>
-            <form id="myForm" name="myForm" onsubmit="go()">
-                <input type="text" placeholder="Game ID" class="gameID" id="gameID" maxlength="8" required>
-                <br>
-                <input type="text" placeholder="Name" class="gameID" id="userID" maxlength="10" required>
-                <br>
-                <input name="joinBtn" type="submit" value="Join" class="joinBtn" onclick="buttonIndex=0" id="JoinBtn">
-                <br>
-                <input name="createBtn" type="submit" value="Create" class="joinBtn" onclick="buttonIndex=1" id="createBtn">
-            </form>
-        </section>
-    </main>
-</body>
-<script src="assets/js/main.js"></script>
+        </center>
+    </div>
+        <body>
+            <div id="background"></div>
+            <main>
+                <section>
+                    <div id="logo">
+                        <h1 id="top" class="logoText">Skool</h1><h1 id="bottom" class="logoText">Czure</h1>
+                    </div>
+                    <form id="myForm" name="myForm" onsubmit="go()">
+                        <input type="text" placeholder="Game ID" class="gameID" id="gameID" maxlength="8" required>
+                        <br>
+                        <input type="text" placeholder="Name" class="gameID" id="userID" maxlength="10" required>
+                        <br>
+                        <input name="joinBtn" type="submit" value="Join" class="joinBtn" onclick="buttonIndex=0" id="JoinBtn">
+                        <br>
+                        <input name="createBtn" type="submit" value="Create" class="joinBtn" onclick="buttonIndex=1" id="createBtn">
+                    </form>
+                </section>
+            </main>
+        </body>
+    <script src="assets/js/main.js"></script>
 </html>
