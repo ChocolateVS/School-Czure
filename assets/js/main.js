@@ -38,7 +38,7 @@ function go() {
 
 function joinRoom(roomID, userID) {
     
-    let socket = new WebSocket("wss://hi"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
+    let socket = new WebSocket("wss://localhost:8080"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
     let action = "Joining Room";
     socket.onopen = function(e) {
       console.log("Server Connection established");
@@ -66,7 +66,7 @@ function joinRoom(roomID, userID) {
 }
 
 function createRoom(roomID, userID) {
-    let socket = new WebSocket("wss://h1");
+    let socket = new WebSocket("ws://localhost:8080");
     let action = "Creating Room";
     socket.onopen = function(e) {
       console.log("Server Connection established");
