@@ -30,7 +30,7 @@ button, input{
 html {
     background-color:#03f4ff;
 }
-#background {
+body {
     background: linear-gradient( rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.6));
     height:100vh;
 }
