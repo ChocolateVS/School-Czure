@@ -2,8 +2,6 @@ var form = document.getElementById("myForm");
 
 var buttonIndex;
 
-let socket = new WebSocket("wss://hi"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
-
 function handleForm(event) { event.preventDefault(); } 
 form.addEventListener('submit', handleForm);
 
@@ -40,8 +38,8 @@ function go() {
 
 function joinRoom(roomID, userID) {
     
-   
-    
+    let socket = new WebSocket("wss://hi"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
+    let action = "Joining Room";
     socket.onopen = function(e) {
       console.log("Server Connection established");
       socket.send({type:"connect", id:roomID,name:userID});
@@ -63,13 +61,13 @@ function joinRoom(roomID, userID) {
 
     socket.onerror = function(error) {
       console.log(`[error] ${error.message}`);
-      displayError(error.message);
+      displayError(action, error.message);
     };
 }
 
 function createRoom(roomID, userID) {
     let socket = new WebSocket("wss://h1");
-    
+    let action = "Creating Room";
     socket.onopen = function(e) {
       console.log("Server Connection established");
       socket.send({type:"connect", id:roomID, name:userID});
@@ -91,16 +89,16 @@ function createRoom(roomID, userID) {
 
     socket.onerror = function(error) {
       console.log(`[error] ${error.message}`);
-      displayError(error.message);
+      displayError(action, error.message);
     };
 }
 
-function displayError(error) {
+function displayError(action, error) {
     console.log("DISPLAYING ERROR");
     document.getElementById("messagetxt").style.visibility = "visible";
     document.getElementById("loadingGIF").style.visibility = "hidden";
     document.getElementById("errorMessage").style.visibility = "visible";
-    document.getElementById("messagetxt").innerHTML = "Error: " + error;
+    document.getElementById("messagetxt").innerHTML = "Error " + action + ", Message: " + error;
 }
 
 function closeMSG() {
