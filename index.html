@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skool Czure - Join Match</title>
+    <title>Skool Czure - Match Making</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--<link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon3.ico">-->
     <link rel="stylesheet" type="text/css" media="screen and (min-device-width: 1000px)" href="assets/css/style.css" />
@@ -17,6 +17,8 @@
             </div>
             <form id="myForm" name="myForm" onsubmit="go()">
                 <input type="text" placeholder="Game ID" class="gameID" id="gameID" maxlength="8" required>
+                <br>
+                <input type="text" placeholder="Name" class="gameID" id="userID" maxlength="10" required>
                 <br>
                 <input name="joinBtn" type="submit" value="Join" class="joinBtn" onclick="buttonIndex=0" id="JoinBtn">
                 <br>

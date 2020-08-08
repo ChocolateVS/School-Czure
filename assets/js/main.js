@@ -22,20 +22,69 @@ function beginSeizure() {
 
 function go() {
     var roomID = document.getElementById("gameID").value;
+    var userID = document.getElementById("userID").value;
     console.log("Game ID: " + roomID);
+    console.log("User ID: " + userID);
     if (buttonIndex == 0) {
-        joinRoom(roomID);
+        joinRoom(roomID, userID);
     }
     else if (buttonIndex == 1) {
-        createRoom(roomID);   
+        createRoom(roomID, userID);   
     }
 }
 
-function joinRoom() {
+function joinRoom(roomID, userID) {
     
+    let socket = new WebSocket("wss://I ASSUME PORT OF THE SERVER THINGY GOES HERE");
+    
+    socket.onopen = function(e) {
+      console.log("Server Connection established");
+      socket.send({type:"connect", id:roomID,name:userID});
+    };
+
+    socket.onmessage = function(event) {
+      alert(`[message] Data received from server: ${event.data}`);
+    };
+
+    socket.onclose = function(event) {
+      if (event.wasClean) {
+        alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+      } else {
+        // e.g. server process killed or network down
+        // event.code is usually 1006 in this case
+        alert('[close] Connection died');
+      }
+    };
+
+    socket.onerror = function(error) {
+      alert(`[error] ${error.message}`);
+    };
 }
 
-function createRoom() {
-    
+function createRoom(roomID, userID) {
+    let socket = new WebSocket("wss://I ASSUME PORT OF THE SERVER THINGY GOES HERE");
+
+    socket.onopen = function(e) {
+      console.log("Server Connection established");
+      socket.send({type:"create", id:roomID,name:userID});
+    };
+
+    socket.onmessage = function(event) {
+      alert(`[message] Data received from server: ${event.data}`);
+    };
+
+    socket.onclose = function(event) {
+      if (event.wasClean) {
+        alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+      } else {
+        // e.g. server process killed or network down
+        // event.code is usually 1006 in this case
+        alert('[close] Connection died');
+      }
+    };
+
+    socket.onerror = function(error) {
+      alert(`[error] ${error.message}`);
+    };
 }
 
