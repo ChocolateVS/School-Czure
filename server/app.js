@@ -1,9 +1,6 @@
 //IM NOT ON INTERNET DOING THIS SO CANT LOOK UP HOW TO DO ANYTHING...
 //CREATING AND CONNECTING TO LOBBIES IS WORKING!!!!!!!!!!!!!!
 
-//WE NEED AN ARRAY OR SOMETHING TO STORE ALL THE PLAYERS FOR EACH ROOM, COULD BE PART OF THE rooms VARIABLE
-//WHEN PLAYER JOINS ROOM SERVER SEND MESSAGE TO ALL CLIENTS WITH THE PLAYERS SO I CAN UPDATE THE ROOMS WITH WHAT PLAYERS ARE IN THEM
-//ALSO HOW DO WE DISTINGUISH CLIENTS???? can you see like client ip's or something????????
 //WE NEEDED CHECK IF A CLIENT DISCONNECTS, IF SO, IT SHOULD DELETE THEM, AND IF NO CLIENTS ARE IN A ROOM, DELETE THE ROOM (MAYBE AFTER CERTAIN PERIOD OF TIME)
 
 "use strict"
@@ -13,10 +10,12 @@ const WebSocket = require('ws');
 const express = require('express');
 const SocketSocket = require('ws').Server;
 
+let clients = [];
 const wss = new WebSocket.Server({ port: 8080 });
 let rooms = {};
 wss.on('connection', function connection(ws) {
-  console.log("[Server] Client Connected!");
+  clients.push(ws);
+  console.log("[Server] Client Connected!", + ws);
   ws.on('message', function incoming(jsondata) {// assuming data is always string
     try {
         let data = JSON.parse(jsondata);
@@ -27,12 +26,11 @@ wss.on('connection', function connection(ws) {
                 if(rooms[data.id] != undefined){
                     ws.room = rooms[data.id]
                     console.log("User " + data.name + "joined room " + data.id);
-                    console.log(rooms);
-                    //rooms[data.id].players. //push(data.name); whats the equivalent to add a player there?
+                    rooms[data.id].players.push(data.name);
+                    sendPlayers(data.id);
                     ws.send(JSON.stringify({
                         type:"connect",
                         status:"success",
-                        //players: rooms[data.id].players
                     }))
                 } else{
                     ws.send(JSON.stringify({
@@ -46,12 +44,14 @@ wss.on('connection', function connection(ws) {
                 // creating a room if room id not taken
                 if(rooms[data.id] == undefined){
                     rooms[data.id] = {
-                        //players:{},//data.name}, //Stores the players in the room somehow
+                        players:[],//For storing the players in each room somehow
                         questions:data.questiondata,
                         questionsShowing:{},// stores the key value pairs of questions currently showing and their answers
                         answersShowing:{},// stores the key-value pairs of answers currently showing, that dont have a question showing as well!
                     }
-                    ws.room = rooms[data.id]
+                    rooms[data.id].players.push(data.name);
+                    ws.room = rooms[data.id];
+                    sendPlayers(data.id);
                     console.log("User " +data.name+" joined room " + data.id );
                     ws.send(JSON.stringify({
                         type:"connect",
@@ -69,10 +69,23 @@ wss.on('connection', function connection(ws) {
         }
     }
     catch {
-     console.log("[Server] Error");//Data was not in json format");
+     console.log("[Server] Error");//Data was most likely not in json format");
     }
         
   });
   ws.on("close",()=>{
   });
 });
+
+function sendPlayers (room) {
+    console.log("SENDING PLAYERS TO CLIENTS NOW!");
+    console.log("Number of Clients", clients.length);
+    for (var i = 0; i < clients.length; i++) {
+        console.log("SHOULD RUN THIS");
+        clients[i].send(JSON.stringify({
+            type:"playerlist",
+            player:rooms[room].players
+        }));
+    }
+    console.log("????");
+}

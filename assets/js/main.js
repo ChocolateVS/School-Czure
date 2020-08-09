@@ -30,7 +30,7 @@ socket.onerror = function(error) {
 };
 
 socket.onmessage = function(event) {
-  //alert(`[message] Data received from server: ${event.data}`);
+    console.log(`[message] Data received from server: ${event.data}`);
     
     let data = JSON.parse(event.data);
 
@@ -42,7 +42,7 @@ socket.onmessage = function(event) {
                     console.log("Succesfully Created Room!");
                     create();
                     break;
-                case "failed":
+                case "fail":
                     displayMessage("Unable to create room", "Room may already exist");
                     break; 
                 default:
@@ -55,12 +55,18 @@ socket.onmessage = function(event) {
                     console.log("Succesfully Joined Room!");
                     create();
                     break;
-                case "failed":
+                case "fail":
                     displayMessage("Unable to join room", "Room doesn't exist");
                     break; 
                 default:
                     break;
             }
+        case "playerlist":
+            players = [];
+            for (i = 0; i < data.player.length; i++) {
+                players.push(data.player[i]);
+            }
+            updateRoomPlayers();
         default:
            break;
     }
@@ -136,7 +142,7 @@ function displayMessage(action, error) {
     document.getElementById("messagetxt").style.visibility = "visible";
     document.getElementById("loadingGIF").style.visibility = "hidden";
     document.getElementById("errorMessage").style.visibility = "visible";
-    document.getElementById("messagetxt").innerHTML = action + ", Message: " + error;
+    document.getElementById("messagetxt").innerHTML = action + ", " + error;
 }
 
 function closeMSG() {
