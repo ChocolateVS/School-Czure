@@ -8,6 +8,8 @@ let lobbyID = "";
 let playerID = "";
 
 let players = [];
+
+let ready = false;
 socket.onopen = function(e) {
       console.log("Server Connection established");
 };
@@ -40,6 +42,7 @@ socket.onmessage = function(event) {
                 case "success":
                     //Join Room
                     console.log("Succesfully Created Room!");
+                    document.getElementById("startBtn").style.visibility = "visible";
                     create();
                     break;
                 case "fail":
@@ -174,4 +177,31 @@ function updateRoomPlayers() {
         
         document.getElementById("players").appendChild(newPlayer);
     }
+}
+
+function readyup() {
+    if (ready) {
+        ready = false;
+        document.getElementById("readyBtn").value = "READY UP";
+        document.getElementById("readyBtn").style.color = "black";
+        socket.send(JSON.stringify(
+        {
+            type:"ready", 
+        }));
+    }
+    else if (!ready) {
+        ready = true;
+        document.getElementById("readyBtn").value = "UNREADY";
+        document.getElementById("readyBtn").style.color = "lightgreen";
+        socket.send(JSON.stringify(
+        {
+            type:"unready", 
+        }));
+    }
+}
+function start() {
+    socket.send(JSON.stringify(
+    {
+        type:"startGame", 
+    }));
 }

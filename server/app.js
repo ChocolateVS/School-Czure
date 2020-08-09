@@ -24,9 +24,9 @@ wss.on('connection', function connection(ws) {
                 console.log("Trying to connect to a room");
                 // connect to an existing room
                 if(rooms[data.id] != undefined){
-                    ws.room = rooms[data.id]
-                    console.log("User " + data.name + "joined room " + data.id);
+                    ws.room = rooms[data.id];
                     rooms[data.id].players.push(data.name);
+                    console.log("User " + data.name + "joined room " + data.id + ", Number of clients in lobby: " + rooms[data.id].players.length);
                     sendPlayers(data.id);
                     ws.send(JSON.stringify({
                         type:"connect",
@@ -64,6 +64,11 @@ wss.on('connection', function connection(ws) {
                     }))
                 }
                 break;
+            case "ready":
+                console.log("Some player wants to be ready");
+                break;
+            case "unready":
+                console.log("Some player wants to be unready");
             default:
                 break;
         }
@@ -79,7 +84,6 @@ wss.on('connection', function connection(ws) {
 
 function sendPlayers (room) {
     console.log("SENDING PLAYERS TO CLIENTS NOW!");
-    console.log("Number of Clients", clients.length);
     for (var i = 0; i < clients.length; i++) {
         console.log("SHOULD RUN THIS");
         clients[i].send(JSON.stringify({
@@ -87,5 +91,4 @@ function sendPlayers (room) {
             player:rooms[room].players
         }));
     }
-    console.log("????");
 }
