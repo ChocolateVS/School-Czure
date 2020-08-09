@@ -200,3 +200,28 @@ section h1, section p {
 .joinBtn:active, .closeBtn:active {
     background-color:#e07e2b;
 }
+
+#lobby {
+    display: none;
+}
+
+.lobbyID {
+    display:inline-block;
+    margin:3px;
+    font-family:monospace;
+    font-size:2.3em;
+    color:#f29d2c
+}
+
+#players {
+    border: 2px solid white;
+    width: 18em;
+    height: 14em;
+    overflow:scroll;
+
+}
+.player {
+    color:white;
+    margin: 20px;
+    display:block;
+}

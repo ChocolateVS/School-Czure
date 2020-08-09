@@ -2,6 +2,70 @@ var form = document.getElementById("myForm");
 
 var buttonIndex;
 
+let socket = new WebSocket("ws://localhost:8080");
+
+let lobbyID = "";
+let playerID = "";
+
+let players = [];
+socket.onopen = function(e) {
+      console.log("Server Connection established");
+};
+
+socket.onclose = function(event) {
+  if (event.wasClean) {
+    displayMessage("Connection Closed", event.reason);
+    //console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+  } else {
+    // e.g. server process killed or network down
+    // event.code is usually 1006 in this case
+    console.log('[close] Connection died');
+    //displayError("Connection closed", event.reason);
+  }
+};
+
+socket.onerror = function(error) {
+  console.log(`[error] ${error.message}`);
+  displayError(action, error.message);
+};
+
+socket.onmessage = function(event) {
+  //alert(`[message] Data received from server: ${event.data}`);
+    
+    let data = JSON.parse(event.data);
+
+    switch (data.type) {
+        case "create": 
+            switch (data.status) {
+                case "success":
+                    //Join Room
+                    console.log("Succesfully Created Room!");
+                    create();
+                    break;
+                case "failed":
+                    displayMessage("Unable to create room", "Room may already exist");
+                    break; 
+                default:
+                    break;
+            }
+        case "connect":
+            switch (data.status) {
+                case "success":
+                    //Join Room
+                    console.log("Succesfully Joined Room!");
+                    create();
+                    break;
+                case "failed":
+                    displayMessage("Unable to join room", "Room doesn't exist");
+                    break; 
+                default:
+                    break;
+            }
+        default:
+           break;
+    }
+}
+                        
 function handleForm(event) { event.preventDefault(); } 
 form.addEventListener('submit', handleForm);
 
@@ -23,6 +87,9 @@ function beginSeizure() {
 function go() {
     var roomID = document.getElementById("gameID").value;
     var userID = document.getElementById("userID").value;
+    lobbyID = roomID;
+    playerID = userID;
+    players.push(playerID);
     console.log("Game ID: " + roomID);
     console.log("User ID: " + userID);
     
@@ -37,73 +104,23 @@ function go() {
 }
 
 function joinRoom(roomID, userID) {
-    
-    let socket = new WebSocket("ws://localhost:8080"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
     let action = "Joining Room";
-    socket.onopen = function(e) {
-      console.log("Server Connection established");
-      socket.send(JSON.stringify(
-          {
-              type:"connect", 
-              id:roomID, 
-              name:userID
-          }));
-    };
-
-    socket.onmessage = function(event) {
-      alert(`[message] Data received from server: ${event.data}`);
-    };
-
-    socket.onclose = function(event) {
-      if (event.wasClean) {
-        alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-      } else {
-        // e.g. server process killed or network down
-        // event.code is usually 1006 in this case
-        console.log('[close] Connection died');
-      }
-    };
-
-    socket.onerror = function(error) {
-      console.log(`[error] ${error.message}`);
-      displayError(action, error.message);
-    };
+    socket.send(JSON.stringify(
+      {
+          type:"connect", 
+          id:roomID, 
+          name:userID
+      }));
 }
 
 function createRoom(roomID, userID) {
-    let socket = new WebSocket("ws://localhost:8080");
     let action = "Creating Room";
-    socket.onopen = function(e) {
-      console.log("Server Connection established");
-      let request = JSON.stringify(
-          {
-              type:"create", 
-              id:roomID, 
-              name:userID
-          });
-      console.log(request);
-      socket.send(request);
-    };
-
-    socket.onmessage = function(event) {
-      //alert(`[message] Data received from server: ${event.data}`);
-    };
-
-    socket.onclose = function(event) {
-      if (event.wasClean) {
-        alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-      } else {
-        // e.g. server process killed or network down
-        // event.code is usually 1006 in this case
-        console.log('[close] Connection died');
-        displayError("Server Closed Connection Unexpectedly!", event.code);
-      }
-    };
-
-    socket.onerror = function(error) {
-      console.log(`[error] ${error.message}`);
-      displayError(action, error.message);
-    };
+    socket.send(JSON.stringify(
+      {
+          type:"create", 
+          id:roomID, 
+          name:userID
+      }));
 }
 
 function displayError(action, error) {
@@ -123,10 +140,32 @@ function displayMessage(action, error) {
 }
 
 function closeMSG() {
-    console.log("CLOSE ERROR MESSAGE");
     document.getElementById("message").style.visibility = "hidden";
     document.getElementById("messagetxt").style.visibility = "hidden";
     document.getElementById("loadingGIF").style.visibility = "hidden";
     document.getElementById("errorMessage").style.visibility = "hidden";
     document.getElementById("messagetxt").innerHTML = "";
+}
+
+function create() {
+    closeMSG();
+    document.getElementById("home").style.display = "none";
+    document.getElementById("lobby").style.display = "block";
+    document.getElementById("lobbyID").innerHTML = lobbyID;
+    updateRoomPlayers(); 
+}
+
+function join() {
+    
+}
+
+function updateRoomPlayers() {
+    document.getElementById("players").innerHTML = "";
+    for (i = 0; i < players.length; i++) {
+        var newPlayer = document.createElement("span");
+        newPlayer.className = "player";
+        newPlayer.innerHTML = players[i];
+        
+        document.getElementById("players").appendChild(newPlayer);
+    }
 }
