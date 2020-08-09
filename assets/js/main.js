@@ -38,11 +38,16 @@ function go() {
 
 function joinRoom(roomID, userID) {
     
-    let socket = new WebSocket("wss://localhost:8080"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
+    let socket = new WebSocket("ws://localhost:8080"); //I ASSUME PORT OF THE SERVER THINGY GOES HERE
     let action = "Joining Room";
     socket.onopen = function(e) {
       console.log("Server Connection established");
-      socket.send({type:"connect", id:roomID,name:userID});
+      socket.send(JSON.stringify(
+          {
+              type:"connect", 
+              id:roomID, 
+              name:userID
+          }));
     };
 
     socket.onmessage = function(event) {
@@ -70,11 +75,18 @@ function createRoom(roomID, userID) {
     let action = "Creating Room";
     socket.onopen = function(e) {
       console.log("Server Connection established");
-      socket.send({type:"connect", id:roomID, name:userID});
+      let request = JSON.stringify(
+          {
+              type:"create", 
+              id:roomID, 
+              name:userID
+          });
+      console.log(request);
+      socket.send(request);
     };
 
     socket.onmessage = function(event) {
-      alert(`[message] Data received from server: ${event.data}`);
+      //alert(`[message] Data received from server: ${event.data}`);
     };
 
     socket.onclose = function(event) {
@@ -84,6 +96,7 @@ function createRoom(roomID, userID) {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
         console.log('[close] Connection died');
+        displayError("Server Closed Connection Unexpectedly!", event.code);
       }
     };
 
@@ -99,6 +112,14 @@ function displayError(action, error) {
     document.getElementById("loadingGIF").style.visibility = "hidden";
     document.getElementById("errorMessage").style.visibility = "visible";
     document.getElementById("messagetxt").innerHTML = "Error " + action + ", Message: " + error;
+}
+
+function displayMessage(action, error) {
+    console.log("DISPLAYING ERROR");
+    document.getElementById("messagetxt").style.visibility = "visible";
+    document.getElementById("loadingGIF").style.visibility = "hidden";
+    document.getElementById("errorMessage").style.visibility = "visible";
+    document.getElementById("messagetxt").innerHTML = action + ", Message: " + error;
 }
 
 function closeMSG() {
