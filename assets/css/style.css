@@ -85,7 +85,6 @@ main {
 
 section {
     position: absolute;
-    top: 25%;
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -96,6 +95,13 @@ section {
     font-weight: bolder;
 }
 
+#home {
+    top: 25%;
+}
+
+#lobby {
+    top: 10%;
+}
 section div {
     /* width: 80%; */
     margin: auto;
