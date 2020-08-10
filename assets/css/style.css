@@ -9,6 +9,9 @@
 .logoText {
     font-family: 'hot_grill_demoregular';
 }
+.logoText:hover {
+    animation: .8s shake infinite alternate;
+}
 
 #message {
     visibility:hidden;
@@ -224,4 +227,13 @@ section h1, section p {
     color:white;
     margin: 20px;
     display:block;
+}
+
+@keyframes shake {
+  0% { transform: skewX(-15deg); }
+  5% { transform: skewX(15deg); }
+  10% { transform: skewX(-15deg); }
+  15% { transform: skewX(15deg); }
+  20% { transform: skewX(0deg); }
+  100% { transform: skewX(0deg); }  
 }
