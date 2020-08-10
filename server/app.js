@@ -113,7 +113,7 @@ wss.on('connection', function connection(ws) {
                 rooms[data.id].players[data.name] = {ready: false,socket:ws};
                 ws.room = rooms[data.id];
                 ws.playerInfo = rooms[data.id].players[data.name];
-                console.log("User " +data.name+" joined room " + data.id );
+                console.log("User " + data.name + " joined room " + data.id );
                 ws.send(JSON.stringify({
                     type:"connect",
                     status:"success"
@@ -129,6 +129,26 @@ wss.on('connection', function connection(ws) {
                 // some player wants to be unready
                 ws.playerInfo.ready = false;
                 sendPlayerInfo(ws.room)
+                break;
+            case "startGame":
+                //I ACTUALLY GOT THIS TO WORK LOL, SOMEHOW I FIGURED OUT HOW THESE LOOPS WORK
+                let allReady = true;
+                for (let playername in rooms[data.id].players) {
+                    console.log(playername + " ready status is " + rooms[data.id].players[playername].ready);
+                    if (!rooms[data.id].players[playername].ready) {
+                        allReady = false;
+                    }
+                }
+                if (allReady) {
+                    console.log("Game can start");
+                }
+                else {
+                    ws.send(JSON.stringify({
+                        type:"message",
+                        message:"Sorry, not all players are ready"
+                    }))
+                }
+                break;
             default:
                 break;
         }

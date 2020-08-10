@@ -83,6 +83,9 @@ socket.onmessage = function(event) {
             players = data.players;
             updateRoomPlayers();
             break;
+        case "message":
+            displayMessage(data.message);
+            break;
         default:
            break;
     }
@@ -225,6 +228,7 @@ function startGame() {
     socket.send(JSON.stringify(
     {
         type:"startGame", 
-        clientid:clientID
+        clientid:clientID,
+        id:lobbyID
     }));
 }
