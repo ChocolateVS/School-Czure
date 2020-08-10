@@ -19,6 +19,10 @@ socket.onopen = function(e) {
 };
 
 socket.onclose = function(event) {
+    console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+    /*setTimeout(function() {
+        socket = new WebSocket("ws://localhost:8080");
+    }, 1000);*/
   if (event.wasClean) {
     displayMessage("Connection Closed", event.reason);
     //console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
@@ -31,8 +35,11 @@ socket.onclose = function(event) {
 };
 
 socket.onerror = function(error) {
-  console.log(`[error] ${error.message}`);
-  displayError(action, error.message);
+    console.log(`[error] ${error.message}`);
+    displayError(action, error.message);
+    /*setTimeout(function() {
+        socket = new WebSocket("ws://localhost:8080");
+    }, 1000);*/
 };
 
 socket.onmessage = function(event) {

@@ -9,6 +9,9 @@
 .logoText {
     font-family: 'hot_grill_demoregular';
 }
+.logoText:hover {
+    animation: .8s shake infinite alternate;
+}
 
 #message {
     visibility:hidden;
@@ -82,7 +85,6 @@ main {
 
 section {
     position: absolute;
-    top: 25%;
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -93,6 +95,13 @@ section {
     font-weight: bolder;
 }
 
+#home {
+    top: 25%;
+}
+
+#lobby {
+    top: 10%;
+}
 section div {
     /* width: 80%; */
     margin: auto;
@@ -198,6 +207,7 @@ section h1, section p {
 }
 
 .joinBtn:active, .closeBtn:active {
+    /*filter: invert(1);*/
     background-color:#e07e2b;
 }
 
@@ -216,7 +226,7 @@ section h1, section p {
 #players {
     border: 2px solid white;
     width: 18em;
-    height: 14em;
+    height: 23%;
     overflow:scroll;
 
 }
@@ -224,4 +234,17 @@ section h1, section p {
     color:white;
     margin: 20px;
     display:block;
+}
+
+@keyframes shake {
+  0% { transform: skewX(-15deg); }
+  5% { transform: skewX(15deg); }
+  10% { transform: skewX(-15deg); }
+  15% { transform: skewX(15deg); }
+  20% { transform: skewX(0deg); }
+  100% { transform: skewX(0deg); }  
+}
+
+@keyframes spaz {
+  filter: invert(1);  
 }
