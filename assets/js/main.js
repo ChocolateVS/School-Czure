@@ -185,7 +185,7 @@ function updateRoomPlayers() {
         newPlayer.innerHTML = players[i][0];
         
         if (players[i][1] == true) {
-            newPlayer.style.color = "green";
+            newPlayer.style.color = "lightgreen";
         }
         else {
             newPlayer.style.color = "black";     
