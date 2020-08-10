@@ -216,7 +216,7 @@ section h1, section p {
 #players {
     border: 2px solid white;
     width: 18em;
-    height: 14em;
+    height: 23%;
     overflow:scroll;
 
 }
