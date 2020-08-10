@@ -9,114 +9,132 @@ console.log("[Server] Started Server!");
 const WebSocket = require('ws');
 const express = require('express');
 const SocketSocket = require('ws').Server;
-
-let hostID = "";
-let clients = [];
 const wss = new WebSocket.Server({ port: 8080 });
 let rooms = {};
+/*
+ROOMS DATA FORMAT:
+{
+    myRoom:{
+        players:{
+            ben:{
+                ready:true,
+                socket:<WebSocket object>
+            },
+            ... more people
+        },
+        questions:{
+            TODO
+        }
+        questionsShowing:{
+            TODO
+        }
+        answersShowing:{
+            TODO
+        }
+    },
+    SomeoneElsesRoom:{...},
+    ...
+}
+WebSocket Object:
+{
+    ... all the normal websocket stuff, plus (hopefully if they connected first):
+    room:<Reference to one of the rooms in <rooms> global var>
+    playerInfo:<Reference to one of the players in one of the rooms>
 
-wss.getUniqueID = function () {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
-    return s4() + s4() + '-' + s4();
-};
+
+}
+*/
+
 
 wss.on('connection', function connection(ws) {
-  clients.push(ws);
-  ws.id = wss.getUniqueID();
-  ws.send(JSON.stringify({
-    type:"clientid",
-    id:ws.id
-  }))
+
   ws.on('message', function incoming(jsondata) {// assuming data is always string
-    console.log("[Server] Client Connected!", + ws.id);
     
     try {
         let data = JSON.parse(jsondata);
         switch (data.type) {
             case "connect":
-                console.log("Trying to connect to a room");
-                // connect to an existing room
-                for (var i = 0; i < rooms[data.id].players.length; i++) {
-                    console.log("Data.name: " + data.name);
-                    console.log("COMPARED TO: " + rooms[data.id].players[i][0]);
-                    if (data.name == rooms[data.id].players[i][0]) {
-                        console.log("Player exists");
-                        ws.send(JSON.stringify({
-                            type:"connect",
-                            status:"fail",
-                            message:"Sorry this name is taken"
-                        }))
-                        break;
-                    }
-                }
-                if(rooms[data.id] != undefined){
-                    ws.room = rooms[data.id];
-                    rooms[data.id].players.push([data.name, ws.id, false]);
-                    console.log("User " + data.name + "joined room " + data.id + ", Number of clients in lobby: " + rooms[data.id].players.length);
-                    sendPlayers(data.id);
+                // connect to an existing room!
+                
+                // Step 0: Escape html
+                data.id = escapeHtml(data.id);
+                data.name = escapeHtml(data.name);
+                // Step A: Validation
+                // ensure valid room
+                if(rooms[data.id] == undefined){
                     ws.send(JSON.stringify({
                         type:"connect",
-                        status:"success",
-                    }))
-                } else{
-                    ws.send(JSON.stringify({
-                        type:"connect",
-                        status:"fail"
+                        status:"fail",
+                        message:"Not a valid room ID"
                     }))
                 }
+                // ensure name not taken
+                if(rooms[data.id].players[data.name] != undefined){
+                    ws.send(JSON.stringify({
+                        type:"connect",
+                        status:"fail",
+                        message:"Sorry this name is taken"
+                    }))
+                } 
+                //Step B: Join player into room
+                rooms[data.id].players[data.name] = {ready: false,socket:ws};
+                ws.room = rooms[data.id];
+                ws.playerInfo = rooms[data.id][data.name];
+                console.log("User " +data.name+" joined room " + data.id );
+                ws.send(JSON.stringify({
+                    type:"connect",
+                    status:"success"
+                }))
+                sendPlayerInfo(ws.room);
+                
                 break;
             case "create":
-                console.log("Trying to create a room");
-                // creating a room if room id not taken
-                if(rooms[data.id] == undefined){
-                    hostID = ws.id;
-                    rooms[data.id] = {
-                        players:[],//For storing the players in each room somehow
-                        activePlayers:[],
-                        questions:data.questiondata,
-                        questionsShowing:{},// stores the key value pairs of questions currently showing and their answers
-                        answersShowing:{},// stores the key-value pairs of answers currently showing, that dont have a question showing as well!
-                    }
-                    rooms[data.id].players.push([data.name, ws.id, false]);
-                    ws.room = rooms[data.id];
-                    sendPlayers(data.id);
-                    console.log("User " +data.name+" joined room " + data.id );
-                    ws.send(JSON.stringify({
-                        type:"connect",
-                        status:"success"
-                    }))
-                } else{
+                // Step 0: Escape html
+                data.id = escapeHtml(data.id);
+                data.name = escapeHtml(data.name);
+                // Step 1: check if room taken
+                if(rooms[data.id] != undefined){
                     ws.send(JSON.stringify({
                         type:"create",
-                        status:"fail"
+                        status:"fail",
+                        message:"That room is already in use!"
                     }))
                 }
+                // Step 2:create room
+                rooms[data.id] = {
+                    players:{},//For storing players in room
+                    questions:data.questiondata,
+                    questionsShowing:{},// stores the key value pairs of questions currently showing and their answers
+                    answersShowing:{},// stores the key-value pairs of answers currently showing, that dont have a question showing as well!
+                }
+
+                // step 3: add player to room
+                // see case "connect"
+                rooms[data.id].players[data.name] = {ready: false,socket:ws};
+                ws.room = rooms[data.id];
+                ws.playerInfo = rooms[data.id][data.name];
+                console.log("User " +data.name+" joined room " + data.id );
+                ws.send(JSON.stringify({
+                    type:"connect",
+                    status:"success"
+                }))
+                sendPlayerInfo(ws.room);
                 break;
             case "ready":
-                console.log("Some player wants to be ready");
-                for (var i = 0; i < rooms[data.id].players.length; i++) {
-                    if (data.clientid == rooms[data.id].players[i][1]) {
-                        rooms[data.id].players[i][2] = true;
-                        sendPlayers(data.id);
-                    }
-                }
+                //Some player wants to be ready
+                ws.playerInfo.ready = true;
+                sendPlayerInfo(ws.room)
                 break;
             case "unready":
-                console.log("Some player wants to be unready");
-                for (var i = 0; i < rooms[data.id].players.length; i++) {
-                    if (data.clientid == rooms[data.id].players[i][1]) {
-                        rooms[data.id].players[i][2] = false;
-                        sendPlayers(data.id);
-                    }
-                }
+                // some player wants to be unready
+                ws.playerInfo.ready = false;
+                sendPlayerInfo(ws.room)
             default:
                 break;
         }
     }
     catch (ex) {
-     console.log("[Server] Error" + ex);//Data was most likely not in json format");
+     console.log("[Server] Error" + ex);//Data was most likely not in json format;
     }
         
   });
@@ -124,11 +142,32 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-function sendPlayers (room) {
-    for (var i = 0; i < clients.length; i++) {
-        clients[i].send(JSON.stringify({
-            type:"playerlist",
-            player:rooms[room].players
-        }));
+function sendPlayerInfo (room) {
+    var playerlist = [];
+    // have to turn it into an array instead of object fto get rid of reference to WebSocket in players object
+    // (see data formats at top)
+    for(let playername of room.players){
+        playerlist.push({
+            name:playername,
+            ready:playersname[player]
+        })
+    }
+    var myjson = JSON.stringify({
+        type:"playerlist",
+        players:playerlist,
+    })
+    for(var player in room.players){
+        player.socket.send(myjson)
     }
 }
+function escapeHtml(text) {
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
