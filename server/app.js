@@ -1,3 +1,4 @@
+const WebSocket = require('ws');
 //IM NOT ON INTERNET DOING THIS SO CANT LOOK UP HOW TO DO ANYTHING...
 //CREATING AND CONNECTING TO LOBBIES IS WORKING!!!!!!!!!!!!!!
 
@@ -6,9 +7,6 @@
 "use strict"
 
 console.log("[Server] Started Server!");
-const WebSocket = require('ws');
-const express = require('express');
-const SocketSocket = require('ws').Server;
 const wss = new WebSocket.Server({ port: 8080 });
 let rooms = {};
 /*
@@ -67,6 +65,7 @@ wss.on('connection', function connection(ws) {
                         status:"fail",
                         message:"Not a valid room ID"
                     }))
+                    return;
                 }
                 // ensure name not taken
                 if(rooms[data.id].players[data.name] != undefined){
@@ -75,18 +74,18 @@ wss.on('connection', function connection(ws) {
                         status:"fail",
                         message:"Sorry this name is taken"
                     }))
+                    return;
                 } 
                 //Step B: Join player into room
                 rooms[data.id].players[data.name] = {ready: false,socket:ws};
                 ws.room = rooms[data.id];
-                ws.playerInfo = rooms[data.id][data.name];
+                ws.playerInfo = rooms[data.id].players[data.name];
                 console.log("User " +data.name+" joined room " + data.id );
                 ws.send(JSON.stringify({
                     type:"connect",
                     status:"success"
                 }))
                 sendPlayerInfo(ws.room);
-                
                 break;
             case "create":
                 // Step 0: Escape html
@@ -99,6 +98,7 @@ wss.on('connection', function connection(ws) {
                         status:"fail",
                         message:"That room is already in use!"
                     }))
+                    return;
                 }
                 // Step 2:create room
                 rooms[data.id] = {
@@ -112,7 +112,7 @@ wss.on('connection', function connection(ws) {
                 // see case "connect"
                 rooms[data.id].players[data.name] = {ready: false,socket:ws};
                 ws.room = rooms[data.id];
-                ws.playerInfo = rooms[data.id][data.name];
+                ws.playerInfo = rooms[data.id].players[data.name];
                 console.log("User " +data.name+" joined room " + data.id );
                 ws.send(JSON.stringify({
                     type:"connect",
@@ -146,18 +146,18 @@ function sendPlayerInfo (room) {
     var playerlist = [];
     // have to turn it into an array instead of object fto get rid of reference to WebSocket in players object
     // (see data formats at top)
-    for(let playername of room.players){
+    for(let playername in room.players){
         playerlist.push({
             name:playername,
-            ready:playersname[player]
+            ready:room.players[playername].ready
         })
     }
     var myjson = JSON.stringify({
         type:"playerlist",
         players:playerlist,
     })
-    for(var player in room.players){
-        player.socket.send(myjson)
+    for(let player in room.players){
+        room.players[player].socket.send(myjson)
     }
 }
 function escapeHtml(text) {

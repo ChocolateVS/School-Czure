@@ -80,10 +80,7 @@ socket.onmessage = function(event) {
                     break;
             }
         case "playerlist":
-            players = [];
-            for (i = 0; i < data.player.length; i++) {
-                players.push([data.player[i][0], data.player[i][2]]);
-            }
+            players = data.players;
             updateRoomPlayers();
         default:
            break;
@@ -185,13 +182,15 @@ function join() {
 }
 
 function updateRoomPlayers() {
+    // clear players div
     document.getElementById("players").innerHTML = "";
-    for (i = 0; i < players.length; i++) {
+
+    for (let player of players) {
         var newPlayer = document.createElement("span");
         newPlayer.className = "player";
-        newPlayer.innerHTML = players[i][0];
+        newPlayer.innerHTML = player.name;
         
-        if (players[i][1] == true) {
+        if (player.ready == true) {
             newPlayer.style.color = "lightgreen";
         }
         else {
