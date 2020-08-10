@@ -207,6 +207,7 @@ section h1, section p {
 }
 
 .joinBtn:active, .closeBtn:active {
+    /*filter: invert(1);*/
     background-color:#e07e2b;
 }
 
@@ -242,4 +243,8 @@ section h1, section p {
   15% { transform: skewX(15deg); }
   20% { transform: skewX(0deg); }
   100% { transform: skewX(0deg); }  
+}
+
+@keyframes spaz {
+  filter: invert(1);  
 }
