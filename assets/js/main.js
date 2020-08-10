@@ -2,6 +2,7 @@ var form = document.getElementById("myForm");
 
 var buttonIndex;
 
+var clientID = "";
 let socket = new WebSocket("ws://localhost:8080");
 
 let lobbyID = "";
@@ -10,6 +11,9 @@ let playerID = "";
 let players = [];
 
 let ready = false;
+
+document.getElementById("startBtn").style.display = "none";
+
 socket.onopen = function(e) {
       console.log("Server Connection established");
 };
@@ -37,12 +41,16 @@ socket.onmessage = function(event) {
     let data = JSON.parse(event.data);
 
     switch (data.type) {
+        case "clientid":
+            clientID = data.id;
+            console.log("Client ID: ", clientID);
+            break;
         case "create": 
             switch (data.status) {
                 case "success":
                     //Join Room
                     console.log("Succesfully Created Room!");
-                    document.getElementById("startBtn").style.visibility = "visible";
+                    
                     create();
                     break;
                 case "fail":
@@ -67,7 +75,7 @@ socket.onmessage = function(event) {
         case "playerlist":
             players = [];
             for (i = 0; i < data.player.length; i++) {
-                players.push(data.player[i]);
+                players.push([data.player[i][0], data.player[i][2]]);
             }
             updateRoomPlayers();
         default:
@@ -157,6 +165,7 @@ function closeMSG() {
 }
 
 function create() {
+    document.getElementById("startBtn").style.display = "inline-block";
     closeMSG();
     document.getElementById("home").style.display = "none";
     document.getElementById("lobby").style.display = "block";
@@ -173,7 +182,14 @@ function updateRoomPlayers() {
     for (i = 0; i < players.length; i++) {
         var newPlayer = document.createElement("span");
         newPlayer.className = "player";
-        newPlayer.innerHTML = players[i];
+        newPlayer.innerHTML = players[i][0];
+        
+        if (players[i][1] == true) {
+            newPlayer.style.color = "green";
+        }
+        else {
+            newPlayer.style.color = "black";     
+        }
         
         document.getElementById("players").appendChild(newPlayer);
     }
@@ -186,7 +202,9 @@ function readyup() {
         document.getElementById("readyBtn").style.color = "black";
         socket.send(JSON.stringify(
         {
-            type:"ready", 
+            type:"unready", 
+            clientid:clientID,
+            id:lobbyID
         }));
     }
     else if (!ready) {
@@ -195,13 +213,16 @@ function readyup() {
         document.getElementById("readyBtn").style.color = "lightgreen";
         socket.send(JSON.stringify(
         {
-            type:"unready", 
+            type:"ready", 
+            clientid:clientID,
+            id:lobbyID
         }));
     }
 }
-function start() {
+function startGame() {
     socket.send(JSON.stringify(
     {
         type:"startGame", 
+        clientid:clientID
     }));
 }

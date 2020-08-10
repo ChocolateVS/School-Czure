@@ -225,7 +225,3 @@ section h1, section p {
     margin: 20px;
     display:block;
 }
-
-#startBtn {
-    visibility: hidden;
-}
