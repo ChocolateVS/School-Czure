@@ -61,7 +61,7 @@ socket.onmessage = function(event) {
                     create();
                     break;
                 case "fail":
-                    displayMessage("Unable to create room", "Room may already exist");
+                    displayMessage(data.message);
                     break; 
                 default:
                     break;
@@ -74,7 +74,7 @@ socket.onmessage = function(event) {
                     create();
                     break;
                 case "fail":
-                    displayMessage("Unable to join room", "Room doesn't exist");
+                    displayMessage(data.message);
                     break; 
                 default:
                     break;
@@ -82,6 +82,7 @@ socket.onmessage = function(event) {
         case "playerlist":
             players = data.players;
             updateRoomPlayers();
+            break;
         default:
            break;
     }
@@ -110,7 +111,6 @@ function go() {
     var userID = document.getElementById("userID").value;
     lobbyID = roomID;
     playerID = userID;
-    players.push(playerID);
     console.log("Game ID: " + roomID);
     console.log("User ID: " + userID);
     
@@ -152,12 +152,12 @@ function displayError(action, error) {
     document.getElementById("messagetxt").innerHTML = "Error " + action + ", Message: " + error;
 }
 
-function displayMessage(action, error) {
+function displayMessage(action) {
     console.log("DISPLAYING ERROR");
     document.getElementById("messagetxt").style.visibility = "visible";
     document.getElementById("loadingGIF").style.visibility = "hidden";
     document.getElementById("errorMessage").style.visibility = "visible";
-    document.getElementById("messagetxt").innerHTML = action + ", " + error;
+    document.getElementById("messagetxt").innerHTML = action;
 }
 
 function closeMSG() {
@@ -177,14 +177,10 @@ function create() {
     updateRoomPlayers(); 
 }
 
-function join() {
-    
-}
-
 function updateRoomPlayers() {
     // clear players div
     document.getElementById("players").innerHTML = "";
-
+    console.log(players.length);
     for (let player of players) {
         var newPlayer = document.createElement("span");
         newPlayer.className = "player";

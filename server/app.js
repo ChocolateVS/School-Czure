@@ -63,7 +63,7 @@ wss.on('connection', function connection(ws) {
                     ws.send(JSON.stringify({
                         type:"connect",
                         status:"fail",
-                        message:"Not a valid room ID"
+                        message:"Sorry, that room doesn't exist"
                     }))
                     return;
                 }
@@ -72,7 +72,7 @@ wss.on('connection', function connection(ws) {
                     ws.send(JSON.stringify({
                         type:"connect",
                         status:"fail",
-                        message:"Sorry this name is taken"
+                        message:"Sorry that name is taken"
                     }))
                     return;
                 } 
@@ -96,7 +96,7 @@ wss.on('connection', function connection(ws) {
                     ws.send(JSON.stringify({
                         type:"create",
                         status:"fail",
-                        message:"That room is already in use!"
+                        message:"Sorry, that room is already in use!"
                     }))
                     return;
                 }
@@ -154,8 +154,9 @@ function sendPlayerInfo (room) {
     }
     var myjson = JSON.stringify({
         type:"playerlist",
-        players:playerlist,
+        players:playerlist
     })
+    
     for(let player in room.players){
         room.players[player].socket.send(myjson)
     }
