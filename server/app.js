@@ -1,4 +1,5 @@
-const WebSocket = require('ws');
+import WebSocket from "ws"
+import utils from "./utils"
 //IM NOT ON INTERNET DOING THIS SO CANT LOOK UP HOW TO DO ANYTHING...
 //CREATING AND CONNECTING TO LOBBIES IS WORKING!!!!!!!!!!!!!!
 
@@ -47,16 +48,13 @@ WebSocket Object:
 wss.on('connection', function connection(ws) {
 
   ws.on('message', function incoming(jsondata) {// assuming data is always string
-    
+
     try {
-        let data = JSON.parse(jsondata);
+        let data = JSON.parse(utils.escapeHtml(jsondata));
         switch (data.type) {
             case "connect":
                 // connect to an existing room!
-                
-                // Step 0: Escape html
-                data.id = escapeHtml(data.id);
-                data.name = escapeHtml(data.name);
+
                 // Step A: Validation
                 // ensure valid room
                 if(rooms[data.id] == undefined){
@@ -75,7 +73,7 @@ wss.on('connection', function connection(ws) {
                         message:"Sorry that name is taken"
                     }))
                     return;
-                } 
+                }
                 //Step B: Join player into room
                 rooms[data.id].players[data.name] = {ready: false,socket:ws};
                 ws.room = rooms[data.id];
@@ -85,7 +83,7 @@ wss.on('connection', function connection(ws) {
                     type:"connect",
                     status:"success"
                 }))
-                sendPlayerInfo(ws.room);
+                utils.Info(ws.room);
                 break;
             case "create":
                 console.log("Player creating room");
@@ -102,10 +100,11 @@ wss.on('connection', function connection(ws) {
                     }))
                     return;
                 }
-                // Step 2:create room
+                // Step 2: Question object
+                // Step 3:create room
                 rooms[data.id] = {
                     players:{},//For storing players in room
-                    questions:data.questiondata,
+                    questions:data.questions,
                     questionsShowing:{},// stores the key value pairs of questions currently showing and their answers
                     answersShowing:{},// stores the key-value pairs of answers currently showing, that dont have a question showing as well!
                 }
@@ -120,17 +119,17 @@ wss.on('connection', function connection(ws) {
                     type:"connect",
                     status:"success"
                 }))
-                sendPlayerInfo(ws.room);
+                utils.Info(ws.room);
                 break;
             case "ready":
                 //Some player wants to be ready
                 ws.playerInfo.ready = true;
-                sendPlayerInfo(ws.room)
+                utils.Info(ws.room)
                 break;
             case "unready":
                 // some player wants to be unready
                 ws.playerInfo.ready = false;
-                sendPlayerInfo(ws.room)
+                utils.Info(ws.room)
                 break;
             case "startGame":
                 //I ACTUALLY GOT THIS TO WORK SOMEHOW LOL, YOU PROBS KNOW A BETTER WAY :-)
@@ -158,39 +157,8 @@ wss.on('connection', function connection(ws) {
     catch (ex) {
      console.log("[Server] Error" + ex);//Data was most likely not in json format;
     }
-        
+
   });
   ws.on("close",()=>{
   });
 });
-
-function sendPlayerInfo (room) {
-    var playerlist = [];
-    // have to turn it into an array instead of object fto get rid of reference to WebSocket in players object
-    // (see data formats at top)
-    for(let playername in room.players){
-        playerlist.push({
-            name:playername,
-            ready:room.players[playername].ready
-        })
-    }
-    var myjson = JSON.stringify({
-        type:"playerlist",
-        players:playerlist
-    })
-    
-    for(let player in room.players){
-        room.players[player].socket.send(myjson)
-    }
-}
-function escapeHtml(text) {
-    var map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    };
-    
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-  }
