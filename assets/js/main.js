@@ -324,10 +324,6 @@ function createNewQuiz() {
                 questions:questions
             }));
         }
-        else {
-            displayMessage("Sorry, Couldn't create quiz. Please check to make sure there are at least 10 valid questions and answers");
-        }
-
     }
     console.log(quizname, questions);
 }
