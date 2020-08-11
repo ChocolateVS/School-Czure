@@ -19,8 +19,16 @@
     <div id="gameOptions">
         <center>
             <div id="questionsForm">
-                <form id="settingsForm" name="questionsForm" onsubmit="newQuestions()">   
-                    <input name="save" type="button" value="SAVE" class="closeBtn" onclick="updateSettings()" id="closeBtn">
+                <form id="questionsForm" name="questionsForm" onsubmit="createNewQuiz()">
+                    <p id="introHead">Quiz Creator!</p><br>
+                    <p id="intro">Please add a minimum of 10 questions to your quiz! </p>
+                    <input class="questionInput" id="quizName" type="text" placeholder="Quiz Name:" required>
+                    <div id="questions">
+                        
+                    </div>
+                    <button id="newQuestion" value="" onclick="addQuestion(0)"><img src="assets/images/plus.svg" width="40px" height="40px"></button>
+                    <br>
+                    <input name="save" type="submit" value="SAVE" class="closeBtn" id="closeBtn">
                 </form>
             </div>
         </center>
@@ -41,6 +49,7 @@
                             <br>
                             <input name="createBtn" type="submit" value="Create" class="joinBtn" onclick="buttonIndex=1" id="createBtn">
                         </form>
+                        <input name="createQuestionsBtn" type="button" value="Create Questions" class="joinBtn" onclick="createQuestions()" id="createQuestionsBtn">
                     </section>
                     <section id="lobby">
                         <div id="logo">
@@ -62,5 +71,4 @@
         <div class="egg" id="bottomLeft"></div>-->
         
     <script src="assets/js/main.js"></script>
-    <script src="assets/js/eggs.js"></script>
 </html>

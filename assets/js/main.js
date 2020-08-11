@@ -1,9 +1,46 @@
+var questionsDiv = document.getElementById("questions");
+var numQuestions = 10;
+for (var i = 1; i <= numQuestions; i++) {
+    addQuestion(i);
+}
+
+function addQuestion(questionNum) {
+    if (questionNum == 0) {
+        numQuestions += 1;
+        questionNum = numQuestions;
+    }
+    var quesDiv = document.createElement("div");
+    quesDiv.classname = "quesDiv";
+    
+    var newQuestion = document.createElement("input");
+    var newAnswer = document.createElement("input");
+    
+    newQuestion.setAttribute("class", "questionInput");
+    newQuestion.setAttribute("type", "text");
+    newQuestion.setAttribute("id", "questionInput");
+    newQuestion.setAttribute("placeholder", "Question " + questionNum + ":");
+    newQuestion.setAttribute("maxlength", 100); 
+    newQuestion.setAttribute("name", "question" + questionNum); 
+    newQuestion.required = true;
+    
+    newAnswer.setAttribute("class", "questionInput");
+    newAnswer.setAttribute("type", "text");
+    newAnswer.setAttribute("id", "answerInput");
+    newAnswer.setAttribute("placeholder", "Answer: ");
+    newAnswer.setAttribute("maxlength", 20);  
+    newAnswer.setAttribute("name", "answer" + questionNum); 
+    newAnswer.required = true;
+    
+    quesDiv.appendChild(newQuestion);
+    quesDiv.appendChild(newAnswer);
+    questionsDiv.appendChild(quesDiv);
+}
 var form = document.getElementById("myForm");
 var questionsForm = document.getElementById("questionsForm");
 
 function handleForm(event) { event.preventDefault(); } 
 form.addEventListener('submit', handleForm);
-settingsForm.addEventListener('submit', handleForm);
+questionsForm.addEventListener('submit', handleForm);
 
 var buttonIndex;
 
@@ -254,4 +291,43 @@ function startGame() {
         clientid:clientID,
         id:lobbyID
     }));
+}
+
+function createQuestions() {
+    if (socket.readyState != 1) {
+        displayMessage("Sorry, No server was found :(, Please try refreshing the page");
+    }
+    else {
+        console.log("HIIIIIII");
+        document.getElementById("gameOptions").style.visibility = "visible";
+    }
+}
+
+function createNewQuiz() {
+    var questions = {
+
+    };
+    for (var i = 1; i <= numQuestions; i++) {
+        var question = document.getElementsByName("question" + i)[0].value;
+        var answer = document.getElementsByName("answer" + i)[0].value;
+        var quizname = document.getElementById("quizName").value;
+        if (question != "" && answer != "") {
+            var pair = {
+                question: question,
+                answer: answer
+            }
+            questions[i] = pair;
+            socket.send(JSON.stringify(
+            {
+                type:"newquiz", 
+                quizname:quizname, 
+                questions:questions
+            }));
+        }
+        else {
+            displayMessage("Sorry, Couldn't create quiz. Please check to make sure there are at least 10 valid questions and answers");
+        }
+
+    }
+    console.log(quizname, questions);
 }

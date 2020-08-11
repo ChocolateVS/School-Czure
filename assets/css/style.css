@@ -20,7 +20,21 @@
     height:100vh;
     position:absolute;
     z-index:1;
+    font-family:monospace;
+    color:white;
 }
+
+#gameOptions {
+    visibility:hidden;
+    background-color:rgba(0, 0, 0, 0.6);
+    width:100vw;
+    height:100vh;
+    position:absolute;
+    z-index:1;
+    font-family:monospace;
+    color:white;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -78,10 +92,6 @@ main {
     visibility:hidden;
 }
 
-#message {
-    font-family:monospace;
-    color:white;
-}
 
 section {
     position: absolute;
@@ -267,4 +277,64 @@ section h1, section p {
 #topLeft {
     left:0;
     top:0;
+}
+
+#introHead {
+    font-family: monospace;
+    font-size: 3em;
+    margin-top: 30px;    
+}
+
+#intro {
+    font-family: monospace;
+    font-size: 2em;
+    margin-bottom: 30px;
+}
+
+#questions {
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+#quizName {
+  width: 30em;
+}
+.questionInput {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-left:5px;
+    margin-right:5px;
+    height:3rem;
+    color:white;
+    background-color:black;
+    font-size: 1.25rem;
+    outline: none;
+    font-weight: 700;
+    font-family: monospace, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align:center;
+    margin-bottom:5px;
+    border:none;
+}
+
+#questionInput {
+  width:30em;
+}
+#answerInput {
+  width:12em;
+}
+
+.questionInput:focus {
+    border-width: 0.125rem;
+    border-style: solid;
+    border-color: rgb(204, 204, 204);
+    border-image: initial;
+}
+
+#newQuestion {
+  background:none;
+  border:none;
+  filter: invert();
+}
+
+#questionsForm {
+  background-color:#01575b;
 }
