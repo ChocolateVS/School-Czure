@@ -1,5 +1,5 @@
-import WebSocket from "ws"
-import utils from "./utils"
+const WebSocket  = require("ws")
+const utils = require("./utils")
 //IM NOT ON INTERNET DOING THIS SO CANT LOOK UP HOW TO DO ANYTHING...
 //CREATING AND CONNECTING TO LOBBIES IS WORKING!!!!!!!!!!!!!!
 
@@ -83,13 +83,10 @@ wss.on('connection', function connection(ws) {
                     type:"connect",
                     status:"success"
                 }))
-                utils.Info(ws.room);
+                utils.sendPlayerInfo(ws.room);
                 break;
             case "create":
                 console.log("Player creating room");
-                // Step 0: Escape html
-                data.id = escapeHtml(data.id);
-                data.name = escapeHtml(data.name);
                 // Step 1: check if room taken
                 if(rooms[data.id] != undefined){
                     console.log("HIIIII");
@@ -119,17 +116,17 @@ wss.on('connection', function connection(ws) {
                     type:"connect",
                     status:"success"
                 }))
-                utils.Info(ws.room);
+                utils.sendPlayerInfo(ws.room);
                 break;
             case "ready":
                 //Some player wants to be ready
                 ws.playerInfo.ready = true;
-                utils.Info(ws.room)
+                utils.sendPlayerInfo(ws.room)
                 break;
             case "unready":
                 // some player wants to be unready
                 ws.playerInfo.ready = false;
-                utils.Info(ws.room)
+                utils.sendPlayerInfo(ws.room)
                 break;
             case "startGame":
                 //I ACTUALLY GOT THIS TO WORK SOMEHOW LOL, YOU PROBS KNOW A BETTER WAY :-)
