@@ -199,6 +199,8 @@ section h1, section p {
     cursor:pointer;
 }
 
+
+
 .joinBtn:hover, .closeBtn:hover {
     border-width: 0.125rem;
     border-style: solid;
@@ -220,7 +222,7 @@ section h1, section p {
     margin:3px;
     font-family:monospace;
     font-size:2.3em;
-    color:#f29d2c
+    color:#016367
 }
 
 #players {
@@ -245,6 +247,24 @@ section h1, section p {
   100% { transform: skewX(0deg); }  
 }
 
+.logoText:active {
+  filter: invert(75%);  
+}
 @keyframes spaz {
   filter: invert(1);  
+}
+
+.egg {
+    position:absolute;
+    width:5%;
+    height:5%;
+    margin:0;
+    padding:0;
+}
+.egg:hover {
+    filter: invert(0);
+}
+#topLeft {
+    left:0;
+    top:0;
 }

@@ -12,6 +12,8 @@ let players = [];
 
 let ready = false;
 
+var count = 4;
+
 document.getElementById("startBtn").style.display = "none";
 
 socket.onopen = function(e) {
@@ -19,7 +21,7 @@ socket.onopen = function(e) {
 };
 
 socket.onclose = function(event) {
-    console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+    console.log('Socket is closed. Reconnect will be attempted in 1 second.', event.reason);
     /*setTimeout(function() {
         socket = new WebSocket("ws://localhost:8080");
     }, 1000);*/
@@ -36,7 +38,8 @@ socket.onclose = function(event) {
 
 socket.onerror = function(error) {
     console.log(`[error] ${error.message}`);
-    displayError(action, error.message);
+    //socket = new WebSocket("ws://localhost:8080")
+    //displayError(action, error.message);
     /*setTimeout(function() {
         socket = new WebSocket("ws://localhost:8080");
     }, 1000);*/
@@ -109,26 +112,41 @@ function beginSeizure() {
     setTimeout(100);
 }
 
-function go() {
-    var roomID = document.getElementById("gameID").value;
-    var userID = document.getElementById("userID").value;
-    lobbyID = roomID;
-    playerID = userID;
-    console.log("Game ID: " + roomID);
-    console.log("User ID: " + userID);
-    
-    document.getElementById("message").style.visibility = "visible";
-    document.getElementById("loadingGIF").style.visibility = "visible";
-    if (buttonIndex == 0) {
-        joinRoom(roomID, userID);
+function go() { 
+    if (socket.readyState != 1) {
+        socket = new WebSocket("ws://localhost:8080");
+        console.log("WEB SOCKET STATE: ", socket.readyState);
+        document.getElementById("loadingGIF").style.visibility = "none";
+        displayMessage("Sorry, No server was found :(, Please try refreshing the page");
+        setTimeout(function() {
+            console.log("GO");
+            if (socket.readyState == 1) {
+                go();   
+            }
+        }, 1000);
     }
-    else if (buttonIndex == 1) {
-        createRoom(roomID, userID);   
+    else {
+        var roomID = document.getElementById("gameID").value;
+        var userID = document.getElementById("userID").value;
+        lobbyID = roomID;
+        playerID = userID;
+        console.log("Game ID: " + roomID);
+        console.log("User ID: " + userID);
+
+        document.getElementById("message").style.visibility = "visible";
+        document.getElementById("loadingGIF").style.visibility = "visible";
+        if (buttonIndex == 0) {
+            joinRoom(roomID, userID);
+        }
+        else if (buttonIndex == 1) {
+            createRoom(roomID, userID);   
+        }
     }
 }
 
 function joinRoom(roomID, userID) {
     let action = "Joining Room";
+    
     socket.send(JSON.stringify(
       {
           type:"connect", 
@@ -139,6 +157,7 @@ function joinRoom(roomID, userID) {
 
 function createRoom(roomID, userID) {
     let action = "Creating Room";
+    console.log("HI");
     socket.send(JSON.stringify(
       {
           type:"create", 
@@ -156,7 +175,7 @@ function displayError(action, error) {
 }
 
 function displayMessage(action) {
-    console.log("DISPLAYING ERROR");
+    console.log("DISPLAYING MESSAGE");
     document.getElementById("messagetxt").style.visibility = "visible";
     document.getElementById("loadingGIF").style.visibility = "hidden";
     document.getElementById("errorMessage").style.visibility = "visible";

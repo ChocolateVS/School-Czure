@@ -88,11 +88,13 @@ wss.on('connection', function connection(ws) {
                 sendPlayerInfo(ws.room);
                 break;
             case "create":
+                console.log("Player creating room");
                 // Step 0: Escape html
                 data.id = escapeHtml(data.id);
                 data.name = escapeHtml(data.name);
                 // Step 1: check if room taken
                 if(rooms[data.id] != undefined){
+                    console.log("HIIIII");
                     ws.send(JSON.stringify({
                         type:"create",
                         status:"fail",
@@ -131,7 +133,7 @@ wss.on('connection', function connection(ws) {
                 sendPlayerInfo(ws.room)
                 break;
             case "startGame":
-                //I ACTUALLY GOT THIS TO WORK LOL, SOMEHOW I FIGURED OUT HOW THESE LOOPS WORK
+                //I ACTUALLY GOT THIS TO WORK SOMEHOW LOL, YOU PROBS KNOW A BETTER WAY :-)
                 let allReady = true;
                 for (let playername in rooms[data.id].players) {
                     console.log(playername + " ready status is " + rooms[data.id].players[playername].ready);

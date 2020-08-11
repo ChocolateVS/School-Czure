@@ -16,36 +16,54 @@
             </div>
         </center>
     </div>
+    <div id="gameOptions">
+        <center>
+            <div id="settingsForm">
+               <form id="myForm" name="myForm" onsubmit="updateSettings()">
+                    <select id="questionSets"></select>
+                    <br>
+                    <input name="save" type="button" value="SAVE" class="closeBtn" onclick="updateSettings()" id="closeBtn">
+                </form>
+
+            </div>
+        </center>
+    </div>
         <body>
             <div id="background"></div>
-            <main>
-                <section id="home">
-                    <div id="logo">
-                        <h1 id="top" class="logoText">Skool</h1><h1 id="bottom" class="logoText">Czure</h1>
-                    </div>
-                    <form id="myForm" name="myForm" onsubmit="go()">
-                        <input type="text" placeholder="Game ID" class="gameID" id="gameID" maxlength="8" required>
-                        <br>
-                        <input type="text" placeholder="Name" class="gameID" id="userID" maxlength="10" required>
-                        <br>
-                        <input name="joinBtn" type="submit" value="Join" class="joinBtn" onclick="buttonIndex=0" id="JoinBtn">
-                        <br>
-                        <input name="createBtn" type="submit" value="Create" class="joinBtn" onclick="buttonIndex=1" id="createBtn">
-                    </form>
-                </section>
-                <section id="lobby">
-                    <div id="logo">
-                        <h1 id="top" class="logoText">Skool</h1><h1 id="bottom" class="logoText">Czure</h1>
-                        <br>
-                        <h2 class="lobbyID">LOBBY ID: </h2><h2 class="lobbyID" id="lobbyID"></h2>
-                    </div>
-                    
-                    <div id="players">
-                    </div>
-                   <input name="readyBtn" type="submit" value="READY UP" class="joinBtn" onclick="readyup()" id="readyBtn"><br>
-                   <input name="startBtn" type="submit" value="START" class="joinBtn" onclick="startGame()" id="startBtn">
-                </section>
-            </main>
+                <main>
+                    <section id="home">
+                        <div id="logo">
+                            <h1 id="top" class="logoText">Skool</h1><h1 id="bottom" class="logoText">Czure</h1>
+                        </div>
+                        <form id="myForm" name="myForm" onsubmit="go()">
+                            <input type="text" placeholder="Game ID" class="gameID" id="gameID" maxlength="8" required>
+                            <br>
+                            <input type="text" placeholder="Name" class="gameID" id="userID" maxlength="10" required>
+                            <br>
+                            <input name="joinBtn" type="submit" value="Join" class="joinBtn" onclick="buttonIndex=0" id="JoinBtn">
+                            <br>
+                            <input name="createBtn" type="submit" value="Create" class="joinBtn" onclick="buttonIndex=1" id="createBtn">
+                        </form>
+                    </section>
+                    <section id="lobby">
+                        <div id="logo">
+                            <h1 id="top" class="logoText">Skool</h1><h1 id="bottom" class="logoText">Czure</h1>
+                            <br>
+                            <h2 class="lobbyID">LOBBY ID: </h2><h2 class="lobbyID" id="lobbyID"></h2>
+                        </div>
+
+                        <div id="players">
+                        </div>
+                       <input name="readyBtn" type="submit" value="READY UP" class="joinBtn" onclick="readyup()" id="readyBtn"><br>
+                       <input name="startBtn" type="submit" value="START" class="joinBtn" onclick="startGame()" id="startBtn">
+                    </section>
+                </main>
         </body>
+        <!-- <div class="egg" id="topLeft"></div>
+        <div class="egg" id="topRight"></div>
+        <div class="egg" id="bottomLeft"></div>
+        <div class="egg" id="bottomLeft"></div>-->
+        
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/eggs.js"></script>
 </html>
