@@ -1,4 +1,9 @@
 var form = document.getElementById("myForm");
+var questionsForm = document.getElementById("questionsForm");
+
+function handleForm(event) { event.preventDefault(); } 
+form.addEventListener('submit', handleForm);
+settingsForm.addEventListener('submit', handleForm);
 
 var buttonIndex;
 
@@ -93,9 +98,8 @@ socket.onmessage = function(event) {
            break;
     }
 }
-                        
-function handleForm(event) { event.preventDefault(); } 
-form.addEventListener('submit', handleForm);
+                    
+
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
