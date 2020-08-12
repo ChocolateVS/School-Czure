@@ -131,6 +131,8 @@ socket.onmessage = function(event) {
         case "message":
             displayMessage(data.message);
             break;
+        case "quizzes":
+            displayMessage("QUIZZES RECIEVED");
         default:
            break;
     }
@@ -298,7 +300,6 @@ function createQuestions() {
         displayMessage("Sorry, No server was found :(, Please try refreshing the page");
     }
     else {
-        console.log("HIIIIIII");
         document.getElementById("gameOptions").style.visibility = "visible";
     }
 }
@@ -317,13 +318,13 @@ function createNewQuiz() {
                 answer: answer
             }
             questions[i] = pair;
-            socket.send(JSON.stringify(
-            {
-                type:"newquiz", 
-                quizname:quizname, 
-                questions:questions
-            }));
         }
     }
+    socket.send(JSON.stringify(
+    {
+        type:"newquiz", 
+        quizname:quizname, 
+        questions:questions
+    }));
     console.log(quizname, questions);
 }

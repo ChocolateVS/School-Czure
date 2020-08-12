@@ -175,6 +175,19 @@ section h1, section p {
     border:none;
 }
 
+#quizSelect {
+  width:17em;
+  height:3rem;
+  color:white;
+  background-color:black;
+  font-size: 1.25rem;
+  outline: none;
+  font-weight: 700;
+  font-family: monospace, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-align:center;
+  margin-bottom:5px;
+  border:none;
+}
 .gameID:focus {
     border-width: 0.125rem;
     border-style: solid;
@@ -237,9 +250,10 @@ section h1, section p {
 
 #players {
     border: 2px solid white;
-    width: 18em;
+    width: 17em;
     height: 23%;
     overflow:scroll;
+    overflow-x:hidden;
 
 }
 .player {

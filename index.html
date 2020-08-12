@@ -49,7 +49,7 @@
                             <br>
                             <input name="createBtn" type="submit" value="Create" class="joinBtn" onclick="buttonIndex=1" id="createBtn">
                         </form>
-                        <input name="createQuestionsBtn" type="button" value="Create Questions" class="joinBtn" onclick="createQuestions()" id="createQuestionsBtn">
+                        <input name="createQuestionsBtn" type="button" value="Create Quiz" class="joinBtn" onclick="createQuestions()" id="createQuestionsBtn">
                     </section>
                     <section id="lobby">
                         <div id="logo">
@@ -57,7 +57,9 @@
                             <br>
                             <h2 class="lobbyID">LOBBY ID: </h2><h2 class="lobbyID" id="lobbyID"></h2>
                         </div>
-
+                        <select id="quizSelect">
+                            <option value="0">Please Select a Quiz!</option>
+                        </select>
                         <div id="players">
                         </div>
                        <input name="readyBtn" type="submit" value="READY UP" class="joinBtn" onclick="readyup()" id="readyBtn"><br>

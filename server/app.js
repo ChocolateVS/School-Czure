@@ -1,5 +1,8 @@
+//DONT KNOW IF IT WOULD BE A GOOD WAY TO DO IT BUT I MADE A quizzes.json file which could just be an object called quizzes that we can add to 
+
 const WebSocket  = require("ws")
 const utils = require("./utils")
+const fs = require('fs');
 //IM NOT ON INTERNET DOING THIS SO CANT LOOK UP HOW TO DO ANYTHING...
 //CREATING AND CONNECTING TO LOBBIES IS WORKING!!!!!!!!!!!!!!
 
@@ -182,6 +185,38 @@ wss.on('connection', function connection(ws) {
             case "":
 
                 break;
+            case "newquiz":
+                let quizname = data.quizname;
+                let questions = data.questions;
+                
+                let quiz = {
+                    quizname: quizname,
+                    questions: questions
+                }
+                console.log("New Quiz: ", quizname);
+                console.log("New Quiz: ", questions);
+                fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, data){
+                    if (err){
+                        console.log(err);
+                    } 
+                    else {
+                        obj = JSON.parse(data); //now it an object
+                        obj.quiz.push(quiz); //add some data
+                        json = JSON.stringify(obj); //convert it back to json
+                        console.log("JSON: " + json)
+                        fs.writeFile('../assets/quizzes/quizzes.json', json, function(error) {
+                            if(error) { 
+                              console.log('[write auth]: ' + err);
+                                if (fail) {
+                                    console.log('[write auth]: success');
+                                }
+                                else {
+                                  console.log('[write auth]: success');
+                                }
+                            }
+                        });
+                    }});
+                break;
             default:
                 break;
         }
@@ -194,3 +229,7 @@ wss.on('connection', function connection(ws) {
   ws.on("close",()=>{
   });
 });
+
+function hi() {
+    
+}
