@@ -139,14 +139,12 @@ wss.on('connection', function connection(ws) {
                         allReady = false;
                     }
                 }
-                if (allReady) {
-                    console.log("Game can start");
-                }
-                else {
+                if (!allReady) {
                     ws.send(JSON.stringify({
                         type:"message",
                         message:"Sorry, not all players are ready"
                     }))
+                    return;
                 }
                 break;
             case "newquiz":
