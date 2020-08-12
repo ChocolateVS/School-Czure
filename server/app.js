@@ -97,13 +97,14 @@ wss.on('connection', function connection(ws) {
                     }))
                     return;
                 }
-                // Step 2: Question object
-                // Step 3:create room
+                // Step 2: create room
                 rooms[data.id] = {
                     players:{},//For storing players in room
                     questions:data.questions,
-                    questionsShowing:{},// stores the key value pairs of questions currently showing and their answers
-                    answersShowing:{},// stores the key-value pairs of answers currently showing, that dont have a question showing as well!
+                    questionsYetToBeUsed,
+                    questionsWithAnswershowing,
+                    questionsWithQuestionShowing,
+                    questionsFinished,
                 }
 
                 // step 3: add player to room
@@ -129,13 +130,10 @@ wss.on('connection', function connection(ws) {
                 utils.sendPlayerInfo(ws.room)
                 break;
             case "startGame":
-                //I ACTUALLY GOT THIS TO WORK SOMEHOW LOL, YOU PROBS KNOW A BETTER WAY :-)
+                //check if all players are ready
                 let allReady = true;
                 for (let playername in rooms[data.id].players) {
-                    console.log(playername + " ready status is " + rooms[data.id].players[playername].ready);
-                    if (!rooms[data.id].players[playername].ready) {
-                        allReady = false;
-                    }
+                    if (!rooms[data.id].players[playername].ready) allReady = false;
                 }
                 if (!allReady) {
                     ws.send(JSON.stringify({
@@ -144,6 +142,45 @@ wss.on('connection', function connection(ws) {
                     }))
                     return;
                 }
+                ///////////////////////////
+                // start game stuff
+                //////////////////////////
+                ws.room.questionsYetToBeUsed = {...ws.room.questions}// shallow copy
+                // choose 3 "answers" to be displayed on screen per player
+                // fourth will be chosen later, those are the ones with a question showing too
+                let playerCount = Object.keys(players).length();
+                let key;
+                for(let i = 0; i < playerCount * 3;i++){
+                    key = utils.randomObjectKey(ws.room.questionsYetToBeUsed);
+                    ws.room.questionsWithAnswershowing[key] = ws.room.questionsYetToBeUsed[key];
+                    delete ws.room.questionsYetToBeUsed[key]// it is now a question with answer showing
+                }
+                // choose 1 question per player to show
+                for(let i = 0; i < playerCount; i++){
+                    key = utils.randomObjectKey(ws.room.questionsYetToBeUsed);
+                    ws.room.questionsWithQuestionShowing[key] = ws.room.questionsYetToBeUsed[key];
+                    delete ws.room.questionsYetToBeUsed[key]// it is now a question with question showing
+                }
+                // get all the answers, (from answersShowing and QuesitionsShowing) and shuffle them up,
+                // get all the questions, and shuffle them up
+                let allAnswers = Object.values(ws.room.questionsWithAnswershowing).concat(Object.values(ws.room.questionsWithQuestionShowing))
+                allAnswers = utils.shuffleArray(allAnswers);
+                let allQuestions = Object.keys(ws.room.questionsWithQuestionShowing);
+                allQuestions = utils.shuffleArray(allQuestions);
+                // send copy to each client
+                for(let client in ws.rooms.players){
+                    ws.rooms.players[client].socket.send(JSON.stringify(
+                        {
+                            type:"initialSetup",
+                            question:allQuestions.pop(),// should be string value
+                            answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
+                        }
+                    ))
+                }
+                // AND THE GAME BEGINS!
+                break;
+            case "":
+
                 break;
             default:
                 break;

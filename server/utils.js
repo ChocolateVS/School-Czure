@@ -39,3 +39,19 @@ exports.escapeHtml = (text)=> {
     return text.replace(/[&<>]/g, function(m) { return map[m]; });
 }
 
+/* Randomize array in-place using Durstenfeld shuffle algorithm */
+exports.shuffleArray = (array) => {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
+
+// returns random key or undefined if nothing in object
+exports.randomObjectKey = function (obj) {
+    var keys = Object.keys(obj);
+    return keys[ keys.length * Math.random() << 0];
+};
