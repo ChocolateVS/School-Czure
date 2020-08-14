@@ -24,15 +24,12 @@ ROOMS DATA FORMAT:
             },
             ... more people
         },
-        questions:{
-            TODO
-        }
-        questionsShowing:{
-            TODO
-        }
-        answersShowing:{
-            TODO
-        }
+        questions:{},// question:answer pairs
+        questionsYetToBeUsed:{},
+        questionsWithAnswershowing:{},
+        questionsWithQuestionShowing: {},
+        questionsFinished:{},
+        host:<reference to host's WebSocket>
     },
     SomeoneElsesRoom:{...},
     ...
@@ -104,10 +101,11 @@ wss.on('connection', function connection(ws) {
                 rooms[data.id] = {
                     players:{},//For storing players in room
                     questions:data.questions,
-                    //questionsYetToBeUsed,
-                    //questionsWithAnswershowing,
-                    //questionsWithQuestionShowing,
-                    //questionsFinished,
+                    questionsYetToBeUsed:{},
+                    questionsWithAnswershowing:{},
+                    questionsWithQuestionShowing: {},
+                    questionsFinished:{},
+                    host:ws,// this websocket is the host
                 }
 
                 // step 3: add player to room
@@ -148,7 +146,7 @@ wss.on('connection', function connection(ws) {
                 ///////////////////////////
                 // start game stuff
                 //////////////////////////
-                /*ws.room.questionsYetToBeUsed = {...ws.room.questions}// shallow copy
+                ws.room.questionsYetToBeUsed = {...ws.room.questions}// shallow copy
                 // choose 3 "answers" to be displayed on screen per player
                 // fourth will be chosen later, those are the ones with a question showing too
                 let playerCount = Object.keys(players).length();
@@ -179,7 +177,7 @@ wss.on('connection', function connection(ws) {
                             answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
                         }
                     ))
-                }*/
+                }
                 // AND THE GAME BEGINS!
                 break;
             case "":

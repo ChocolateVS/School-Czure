@@ -1,8 +1,10 @@
-var questionsDiv = document.getElementById("questions");
+var questionsDiv = id("questions");
 var numQuestions = 10;
 for (var i = 1; i <= numQuestions; i++) {
     addQuestion(i);
 }
+function id(id){return document.getElementById(id)}
+function $(sel){return document.querySelector(sel)}
 
 function addQuestion(questionNum) {
     if (questionNum == 0) {
@@ -35,8 +37,8 @@ function addQuestion(questionNum) {
     quesDiv.appendChild(newAnswer);
     questionsDiv.appendChild(quesDiv);
 }
-var form = document.getElementById("myForm");
-var questionsForm = document.getElementById("questionsForm");
+var form = id("myForm");
+var questionsForm = id("questionsForm");
 
 function handleForm(event) { event.preventDefault(); } 
 form.addEventListener('submit', handleForm);
@@ -56,7 +58,7 @@ let ready = false;
 
 var count = 4;
 
-document.getElementById("startBtn").style.display = "none";
+id("startBtn").style.display = "none";
 
 socket.onopen = function(e) {
       console.log("Server Connection established");
@@ -101,7 +103,8 @@ socket.onmessage = function(event) {
             switch (data.status) {
                 case "success":
                     //Join Room
-                    document.getElementById("startBtn").style.display = "inline-block";
+                    id("startBtn").style.display = "inline-block";// only start quiz if host
+                    id("quizSelect").style.display = "block";// only select quiz if host
                     console.log("Succesfully Created Room!");
                     
                     create();
@@ -116,8 +119,9 @@ socket.onmessage = function(event) {
             switch (data.status) {
                 case "success":
                     //Join Room
-                    document.getElementById("startBtn").style.display = "none";
+                    id("startBtn").style.display = "none";
                     console.log("Succesfully Joined Room!");
+                    id("quizSelect").style.display = "none";// only select quiz if host
                     create();
                     break;
                 case "fail":
@@ -153,7 +157,7 @@ function getRandomColor() {
 
 function beginSeizure() {
     requestAnimationFrame(beginSeizure);
-    document.querySelector("html").style.backgroundColor = getRandomColor();
+    $("html").style.backgroundColor = getRandomColor();
     setTimeout(100);
 }
 
@@ -161,7 +165,7 @@ function go() {
     if (socket.readyState != 1) {
         socket = new WebSocket("ws://localhost:8080");
         console.log("WEB SOCKET STATE: ", socket.readyState);
-        document.getElementById("loadingGIF").style.visibility = "none";
+        id("loadingGIF").style.visibility = "none";
         displayMessage("Sorry, No server was found :(, Please try refreshing the page");
         setTimeout(function() {
             console.log("GO");
@@ -171,15 +175,15 @@ function go() {
         }, 1000);
     }
     else {
-        var roomID = document.getElementById("gameID").value;
-        var userID = document.getElementById("userID").value;
+        var roomID = id("gameID").value;
+        var userID = id("userID").value;
         lobbyID = roomID;
         playerID = userID;
         console.log("Game ID: " + roomID);
         console.log("User ID: " + userID);
 
-        document.getElementById("message").style.visibility = "visible";
-        document.getElementById("loadingGIF").style.visibility = "visible";
+        id("message").style.visibility = "visible";
+        id("loadingGIF").style.visibility = "visible";
         if (buttonIndex == 0) {
             joinRoom(roomID, userID);
         }
@@ -213,40 +217,40 @@ function createRoom(roomID, userID) {
 
 function displayError(action, error) {
     console.log("DISPLAYING ERROR");
-    document.getElementById("messagetxt").style.visibility = "visible";
-    document.getElementById("loadingGIF").style.visibility = "hidden";
-    document.getElementById("errorMessage").style.visibility = "visible";
-    document.getElementById("messagetxt").innerHTML = "Error " + action + ", Message: " + error;
+    id("messagetxt").style.visibility = "visible";
+    id("loadingGIF").style.visibility = "hidden";
+    id("errorMessage").style.visibility = "visible";
+    id("messagetxt").innerHTML = "Error " + action + ", Message: " + error;
 }
 
 function displayMessage(action) {
     console.log("DISPLAYING MESSAGE");
-    document.getElementById("messagetxt").style.visibility = "visible";
-    document.getElementById("loadingGIF").style.visibility = "hidden";
-    document.getElementById("errorMessage").style.visibility = "visible";
-    document.getElementById("messagetxt").innerHTML = action;
+    id("messagetxt").style.visibility = "visible";
+    id("loadingGIF").style.visibility = "hidden";
+    id("errorMessage").style.visibility = "visible";
+    id("messagetxt").innerHTML = action;
 }
 
 function closeMSG() {
-    document.getElementById("message").style.visibility = "hidden";
-    document.getElementById("messagetxt").style.visibility = "hidden";
-    document.getElementById("loadingGIF").style.visibility = "hidden";
-    document.getElementById("errorMessage").style.visibility = "hidden";
-    document.getElementById("messagetxt").innerHTML = "";
+    id("message").style.visibility = "hidden";
+    id("messagetxt").style.visibility = "hidden";
+    id("loadingGIF").style.visibility = "hidden";
+    id("errorMessage").style.visibility = "hidden";
+    id("messagetxt").innerHTML = "";
 }
 
 function create() {
     
     closeMSG();
-    document.getElementById("home").style.display = "none";
-    document.getElementById("lobby").style.display = "block";
-    document.getElementById("lobbyID").innerHTML = lobbyID;
+    id("home").style.display = "none";
+    id("lobby").style.display = "block";
+    id("lobbyID").innerHTML = lobbyID;
     updateRoomPlayers(); 
 }
 
 function updateRoomPlayers() {
     // clear players div
-    document.getElementById("players").innerHTML = "";
+    id("players").innerHTML = "";
     console.log(players.length);
     for (let player of players) {
         var newPlayer = document.createElement("span");
@@ -260,15 +264,15 @@ function updateRoomPlayers() {
             newPlayer.style.color = "white";     
         }
         
-        document.getElementById("players").appendChild(newPlayer);
+        id("players").appendChild(newPlayer);
     }
 }
 
 function readyup() {
     if (ready) {
         ready = false;
-        document.getElementById("readyBtn").value = "READY UP";
-        document.getElementById("readyBtn").style.color = "black";
+        id("readyBtn").value = "READY UP";
+        id("readyBtn").style.color = "black";
         socket.send(JSON.stringify(
         {
             type:"unready", 
@@ -278,8 +282,8 @@ function readyup() {
     }
     else if (!ready) {
         ready = true;
-        document.getElementById("readyBtn").value = "UNREADY";
-        document.getElementById("readyBtn").style.color = "lightgreen";
+        id("readyBtn").value = "UNREADY";
+        id("readyBtn").style.color = "lightgreen";
         socket.send(JSON.stringify(
         {
             type:"ready", 
@@ -302,7 +306,7 @@ function createQuestions() {
         displayMessage("Sorry, No server was found :(, Please try refreshing the page");
     }
     else {
-        document.getElementById("gameOptions").style.visibility = "visible";
+        id("gameOptions").style.visibility = "visible";
     }
 }
 
@@ -313,7 +317,7 @@ function createNewQuiz() {
     for (var i = 1; i <= numQuestions; i++) {
         var question = document.getElementsByName("question" + i)[0].value;
         var answer = document.getElementsByName("answer" + i)[0].value;
-        var quizname = document.getElementById("quizName").value;
+        var quizname = id("quizName").value;
         if (question != "" && answer != "") {
             var pair = {
                 question: question,
