@@ -238,6 +238,8 @@ section h1, section p {
 
 #lobby {
     display: none;
+    top:0;
+    margin-top:2em;
 }
 
 .lobbyID {
@@ -250,16 +252,20 @@ section h1, section p {
 
 #players {
     border: 2px solid white;
-    width: 17em;
-    height: 23%;
-    overflow:scroll;
+    width: 100vw;
+    height: 60vh;
+    overflow:hidden;
     overflow-x:hidden;
+ 
 
 }
 .player {
     color:white;
-    margin: 20px;
+    margin-left: 4em;
+    margin-right: 4em;
+    margin-top:2em;
     display:block;
+    display:inline-block;
 }
 
 @keyframes shake {

@@ -101,6 +101,7 @@ socket.onmessage = function(event) {
             switch (data.status) {
                 case "success":
                     //Join Room
+                    document.getElementById("startBtn").style.display = "inline-block";
                     console.log("Succesfully Created Room!");
                     
                     create();
@@ -115,6 +116,7 @@ socket.onmessage = function(event) {
             switch (data.status) {
                 case "success":
                     //Join Room
+                    document.getElementById("startBtn").style.display = "none";
                     console.log("Succesfully Joined Room!");
                     create();
                     break;
@@ -234,7 +236,7 @@ function closeMSG() {
 }
 
 function create() {
-    document.getElementById("startBtn").style.display = "inline-block";
+    
     closeMSG();
     document.getElementById("home").style.display = "none";
     document.getElementById("lobby").style.display = "block";
@@ -255,7 +257,7 @@ function updateRoomPlayers() {
             newPlayer.style.color = "lightgreen";
         }
         else {
-            newPlayer.style.color = "black";     
+            newPlayer.style.color = "white";     
         }
         
         document.getElementById("players").appendChild(newPlayer);
