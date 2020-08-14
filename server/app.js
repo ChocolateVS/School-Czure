@@ -78,7 +78,7 @@ wss.on('connection', function connection(ws) {
                 rooms[data.id].players[data.name] = {ready: false,socket:ws};
                 ws.room = rooms[data.id];
                 ws.playerInfo = rooms[data.id].players[data.name];
-                console.log("User " +data.name+" joined room " + data.id );
+                console.log("User " +data.name+" joined room " + data.id);
                 ws.send(JSON.stringify({
                     type:"connect",
                     status:"success"
@@ -88,8 +88,7 @@ wss.on('connection', function connection(ws) {
             case "create":
                 console.log("Player creating room");
                 // Step 1: check if room taken
-                if(rooms[data.id] != undefined){
-                    console.log("HIIIII");
+                if(rooms[data.id] != undefined) {
                     ws.send(JSON.stringify({
                         type:"create",
                         status:"fail",
