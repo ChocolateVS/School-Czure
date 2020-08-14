@@ -37,6 +37,7 @@ function addQuestion(questionNum) {
     quesDiv.appendChild(newAnswer);
     questionsDiv.appendChild(quesDiv);
 }
+
 var form = id("myForm");
 var questionsForm = id("questionsForm");
 
@@ -104,9 +105,21 @@ socket.onmessage = function(event) {
                 case "success":
                     //Join Room
                     id("startBtn").style.display = "inline-block";// only start quiz if host
-                    id("quizSelect").style.display = "block";// only select quiz if host
+                    id("quizSelect").style.display = "inline-block";// only select quiz if host
                     console.log("Succesfully Created Room!");
-                    
+                    console.log(data.quizList[0].name);
+
+                    let count = 0;
+                    for (let element in data.quizList) {
+                        console.log("JHI");
+                        
+                        var option = document.createElement("option");
+                        option.innerHTML = data.quizList[element].name;
+                        option.setAttribute("value", count);
+                        console.log(data.quizList[element].name);
+                        id("quizSelect").appendChild(option);
+                        count++;
+                    };
                     create();
                     break;
                 case "fail":
@@ -115,13 +128,14 @@ socket.onmessage = function(event) {
                 default:
                     break;
             }
+            break;
         case "connect":
             switch (data.status) {
                 case "success":
                     //Join Room
                     id("startBtn").style.display = "none";
-                    console.log("Succesfully Joined Room!");
                     id("quizSelect").style.display = "none";// only select quiz if host
+                    console.log("Succesfully Joined Room!");
                     create();
                     break;
                 case "fail":
@@ -130,6 +144,7 @@ socket.onmessage = function(event) {
                 default:
                     break;
             }
+            break;
         case "playerlist":
             players = data.players;
             updateRoomPlayers();
@@ -251,7 +266,7 @@ function create() {
 function updateRoomPlayers() {
     // clear players div
     id("players").innerHTML = "";
-    console.log(players.length);
+
     for (let player of players) {
         var newPlayer = document.createElement("span");
         newPlayer.className = "player";
@@ -293,12 +308,20 @@ function readyup() {
     }
 }
 function startGame() {
-    socket.send(JSON.stringify(
-    {
-        type:"startGame", 
-        clientid:clientID,
-        id:lobbyID
-    }));
+    let e = id("quizSelect").value;
+    console.log(e);
+    if (e != -1) {
+        socket.send(JSON.stringify(
+        {
+            type:"startGame", 
+            clientid:clientID,
+            id:lobbyID,
+            selected:e
+        }));   
+    }
+    else {
+        displayMessage("Please Select a quiz to begin");
+    }
 }
 
 function createQuestions() {

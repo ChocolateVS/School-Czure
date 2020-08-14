@@ -112,11 +112,27 @@ wss.on('connection', function connection(ws) {
                 rooms[data.id].players[data.name] = {ready: false,socket:ws};
                 ws.room = rooms[data.id];
                 ws.playerInfo = rooms[data.id].players[data.name];
-                console.log("User " + data.name + " joined room " + data.id );
-                ws.send(JSON.stringify({
-                    type:"connect",
-                    status:"success"
-                }))
+                console.log("User " + data.name + " created room " + data.id);
+                
+                fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, datas){
+                    if (err){
+                        console.log(err);
+                    } 
+                    else {
+                        obj = JSON.parse(datas); //now it an object
+                        /////////////////////////MAKE DIS BETTA PWEASE :)//////////////////////
+                        quizList = {};
+                        for (let i = 0; i < obj.quiz.length; i++) {
+                            quizList[i] = {name:obj.quiz[i].quizname};
+                        }
+                        ws.send(JSON.stringify({
+                            type:"create",
+                            status:"success",
+                            quizList:quizList
+                        }));
+                    }
+                });
+
                 utils.sendPlayerInfo(ws.room);
                 break;
             case "ready":
@@ -135,17 +151,29 @@ wss.on('connection', function connection(ws) {
                 for (let playername in rooms[data.id].players) {
                     if (!rooms[data.id].players[playername].ready) allReady = false;
                 }
-                if (!allReady) {
+                if (!allReady) {    
                     ws.send(JSON.stringify({
                         type:"message",
                         message:"Sorry, not all players are ready"
                     }))
                     return;
                 }
+                
+                //GET THE QUESTIONS !!!!!!!
+                fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, datas){
+                    if (err){console.log(err);} 
+                    else {
+                        obj = JSON.parse(datas); //now it an object
+                        console.log(data.selected);
+                        let selectedQuiz = obj.quiz[data.selected];
+                        console.log(selectedQuiz);
+                    }
+                });
+                
                 ///////////////////////////
                 // start game stuff
                 //////////////////////////
-                ws.room.questionsYetToBeUsed = {...ws.room.questions}// shallow copy
+                /*ws.room.questionsYetToBeUsed = {...ws.room.questions}// shallow copy
                 // choose 3 "answers" to be displayed on screen per player
                 // fourth will be chosen later, those are the ones with a question showing too
                 let playerCount = Object.keys(players).length();
@@ -176,11 +204,8 @@ wss.on('connection', function connection(ws) {
                             answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
                         }
                     ))
-                }
+                }*/
                 // AND THE GAME BEGINS!
-                break;
-            case "":
-
                 break;
             case "newquiz":
                 let quizname = data.quizname;
