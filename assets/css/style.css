@@ -14,10 +14,10 @@
 }
 
 #message {
-    visibility:hidden;
+    display:none;
     background-color:rgba(0, 0, 0, 0.6);
     width:100vw;
-    height:100vh;
+    height:auto;
     position:absolute;
     z-index:1;
     font-family:monospace;
@@ -25,10 +25,10 @@
 }
 
 #gameOptions {
-    visibility:hidden;
+    display:none;
     background-color:rgba(0, 0, 0, 0.6);
     width:100vw;
-    height:100vh;
+    height:auto;
     position:absolute;
     z-index:1;
     font-family:monospace;
@@ -38,7 +38,6 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
     font-family: "Dosis", sans-serif;
 }
 button, input{
@@ -46,25 +45,20 @@ button, input{
 }
 html {
     background-color:#03f4ff;
+    margin:0;padding:0;
 }
-#background {
-    /*background: linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3) ), url(../images/background.jpg);*/
+
+
+body {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width: 100vw;
+    min-height: 100vh;
     background: linear-gradient( rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.6));
-    height: 100vh;
-    
-    filter: blur(3px);
-    
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-}
-
-main {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
 }
 
 #errorMessage {
@@ -89,33 +83,18 @@ main {
     align-items: center;
     text-align: center;
     margin: auto;
-    visibility:hidden;
+    display:none;
 }
 
 
 section {
-    position: absolute;
+    display:flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    height: 100%;
-    width: 100%;
     margin: auto;
     font-size: 1.25rem;
     font-weight: bolder;
-}
-
-#home {
-    top: 25%;
-}
-
-#lobby {
-    top: 10%;
-}
-section div {
-    /* width: 80%; */
-    margin: auto;
-    margin-bottom: 3rem;
 }
 
 section div a{
@@ -162,7 +141,7 @@ section h1, section p {
     margin-bottom:5px;
 }
 .gameID {
-    width:17em;
+    width:15em;
     height:3rem;
     color:white;
     background-color:black;
@@ -176,7 +155,7 @@ section h1, section p {
 }
 
 #quizSelect {
-  width:17em;
+  width:15em;
   height:3rem;
   color:white;
   background-color:black;
@@ -197,7 +176,7 @@ section h1, section p {
 
 .joinBtn, .closeBtn {
     margin-bottom:5px;
-    width:17em;
+    width:15em;
     height:3rem;
     background-color:#e0a02b;
     font-size: 1.25rem;
@@ -319,7 +298,7 @@ section h1, section p {
   width: 30em;
 }
 .questionInput {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     margin-top: 10px;
     margin-left:5px;
     margin-right:5px;
@@ -331,7 +310,6 @@ section h1, section p {
     font-weight: 700;
     font-family: monospace, "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-align:center;
-    margin-bottom:5px;
     border:none;
 }
 

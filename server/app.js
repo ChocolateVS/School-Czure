@@ -168,45 +168,9 @@ wss.on('connection', function connection(ws) {
                         selectedQuiz = obj.quiz[data.selected];
                         ws.room.questionsYetToBeUsed = selectedQuiz.questions;// shallow copy
                         console.log("questions", selectedQuiz);
-                        startGame(ws);
+                        startGame(ws.room);
                     }
                 });
-                ///////////////////////////
-                // start game stuff
-                //////////////////////////
-                
-                // choose 3 "answers" to be displayed on screen per player
-                // fourth will be chosen later, those are the ones with a question showing too
-                /*let playerCount = Object.keys(players).length();
-                let key;
-                for(let i = 0; i < playerCount * 3;i++){
-                    key = utils.randomObjectKey(ws.room.questionsYetToBeUsed);
-                    ws.room.questionsWithAnswershowing[key] = ws.room.questionsYetToBeUsed[key];
-                    delete ws.room.questionsYetToBeUsed[key]// it is now a question with answer showing
-                }
-                // choose 1 question per player to show
-                for(let i = 0; i < playerCount; i++){
-                    key = utils.randomObjectKey(ws.room.questionsYetToBeUsed);
-                    ws.room.questionsWithQuestionShowing[key] = ws.room.questionsYetToBeUsed[key];
-                    delete ws.room.questionsYetToBeUsed[key]// it is now a question with question showing
-                }
-                // get all the answers, (from answersShowing and QuesitionsShowing) and shuffle them up,
-                // get all the questions, and shuffle them up
-                let allAnswers = Object.values(ws.room.questionsWithAnswershowing).concat(Object.values(ws.room.questionsWithQuestionShowing))
-                allAnswers = utils.shuffleArray(allAnswers);
-                let allQuestions = Object.keys(ws.room.questionsWithQuestionShowing);
-                allQuestions = utils.shuffleArray(allQuestions);
-                // send copy to each client
-                for(let client in ws.rooms.players){
-                    ws.rooms.players[client].socket.send(JSON.stringify(
-                        {
-                            type:"initialSetup",
-                            question:allQuestions.pop(),// should be string value
-                            answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
-                        }
-                    ))
-                }*/
-                // AND THE GAME BEGINS!
                 break;
             case "newquiz":
                 let quizname = data.quizname;
@@ -251,46 +215,70 @@ wss.on('connection', function connection(ws) {
   });
   ws.on("close",()=>{
       if(ws.room == undefined) return;
-      // if in a lobby, take them out of the lobby
+      
       if(ws = ws.room.host){
+          // if a host, delete room (AND ALL REFERENCES TO ROOM)
         for(player in ws.room.players){
             if(ws.room.players[player] != ws.playerInfo){
-                ws.room.players[player].send(JSON.stringify({
+                ws.room.players[player].socket.send(JSON.stringify({
                     type:"close",
                     message:"Host Disconnected"
                 }))
-                //delete ws.room.players[player].d
+                // remove this person's references to the room and player info for the garbage collector
+                delete ws.room.players[player].socket.room
+                delete ws.room.players[player].socket.playerInfo
             }
         }
+        // remove the reference from the "rooms" global var
+        for(let roomName in rooms){
+            if(rooms[roomName] == ws.room) {
+                delete rooms[roomName];
+                break;
+            }
+        }
+        // remove reference from the hosts'websocket
+        delete ws.room
+        // OK that should clear all references now
       } else{
+        // Remove the player from the players
+        for(let player in ws.room.players)
+            if(ws.room.players[player] == ws.playerInfo){
+                delete ws.room.players[player];
+                break;
+            }
+        // ensure any remaining references are removed
+        delete ws.playerInfo;
+        // send updated player list
+        utils.sendPlayerInfo(ws.room);
+        delete ws.room;
 
       }
   });
 });
 
-function startGame(ws) {
-    let playerCount = Object.keys(players).length();
+function startGame(room) {
+    let playerCount = Object.keys(room.players).length;
     let key;
     for(let i = 0; i < playerCount * 3;i++){
-        key = utils.randomObjectKey(ws.room.questionsYetToBeUsed);
-        ws.room.questionsWithAnswershowing[key] = ws.room.questionsYetToBeUsed[key];
-        delete ws.room.questionsYetToBeUsed[key]// it is now a question with answer showing
+        key = utils.randomObjectKey(room.questionsYetToBeUsed);
+        room.questionsWithAnswershowing[key] = room.questionsYetToBeUsed[key];
+        delete room.questionsYetToBeUsed[key]// it is now a question with answer showing
     }
     // choose 1 question per player to show
     for(let i = 0; i < playerCount; i++){
-        key = utils.randomObjectKey(ws.room.questionsYetToBeUsed);
-        ws.room.questionsWithQuestionShowing[key] = ws.room.questionsYetToBeUsed[key];
-        delete ws.room.questionsYetToBeUsed[key]// it is now a question with question showing
+        key = utils.randomObjectKey(room.questionsYetToBeUsed);
+        room.questionsWithQuestionShowing[key] = room.questionsYetToBeUsed[key];
+        delete room.questionsYetToBeUsed[key]// it is now a question with question showing
     }
     // get all the answers, (from answersShowing and QuesitionsShowing) and shuffle them up,
     // get all the questions, and shuffle them up
-    let allAnswers = Object.values(ws.room.questionsWithAnswershowing).concat(Object.values(ws.room.questionsWithQuestionShowing))
+    let allAnswers = Object.values(room.questionsWithAnswershowing).concat(Object.values(room.questionsWithQuestionShowing))
     allAnswers = utils.shuffleArray(allAnswers);
-    let allQuestions = Object.keys(ws.room.questionsWithQuestionShowing);
+    let allQuestions = Object.keys(room.questionsWithQuestionShowing);
     allQuestions = utils.shuffleArray(allQuestions);
     // send copy to each client
-    for(let client in ws.rooms.players){
-        ws.rooms.players[client].socket.send(JSON.stringify(
+    for(let client in room.players){
+        room.players[client].socket.send(JSON.stringify(
             {
                 type:"initialSetup",
                 question:allQuestions.pop(),// should be string value

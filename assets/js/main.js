@@ -155,6 +155,7 @@ socket.onmessage = function(event) {
         case "quizzes":
             displayMessage("QUIZZES RECIEVED");
         default:
+            console.warn("Message type:" + data.type +" not yet implemented")
            break;
     }
 }
@@ -180,7 +181,7 @@ function go() {
     if (socket.readyState != 1) {
         socket = new WebSocket("ws://localhost:8080");
         console.log("WEB SOCKET STATE: ", socket.readyState);
-        id("loadingGIF").style.visibility = "none";
+        id("loadingGIF").style.display = "block";
         displayMessage("Sorry, No server was found :(, Please try refreshing the page");
         setTimeout(function() {
             console.log("GO");
@@ -197,8 +198,8 @@ function go() {
         console.log("Game ID: " + roomID);
         console.log("User ID: " + userID);
 
-        id("message").style.visibility = "visible";
-        id("loadingGIF").style.visibility = "visible";
+        id("message").style.display = "block";
+        id("loadingGIF").style.display = "block";
         if (buttonIndex == 0) {
             joinRoom(roomID, userID);
         }
@@ -232,25 +233,25 @@ function createRoom(roomID, userID) {
 
 function displayError(action, error) {
     console.log("DISPLAYING ERROR");
-    id("messagetxt").style.visibility = "visible";
-    id("loadingGIF").style.visibility = "hidden";
-    id("errorMessage").style.visibility = "visible";
+    id("messagetxt").style.display = "block";
+    id("loadingGIF").style.display = "none";
+    id("errorMessage").style.display = "block";
     id("messagetxt").innerHTML = "Error " + action + ", Message: " + error;
 }
 
 function displayMessage(action) {
     console.log("DISPLAYING MESSAGE");
-    id("messagetxt").style.visibility = "visible";
-    id("loadingGIF").style.visibility = "hidden";
-    id("errorMessage").style.visibility = "visible";
+    id("messagetxt").style.display = "block";
+    id("loadingGIF").style.display = "none";
+    id("errorMessage").style.display = "block";
     id("messagetxt").innerHTML = action;
 }
 
 function closeMSG() {
-    id("message").style.visibility = "hidden";
-    id("messagetxt").style.visibility = "hidden";
-    id("loadingGIF").style.visibility = "hidden";
-    id("errorMessage").style.visibility = "hidden";
+    id("message").style.display = "none";
+    id("messagetxt").style.display = "none";
+    id("loadingGIF").style.display = "none";
+    id("errorMessage").style.display = "none";
     id("messagetxt").innerHTML = "";
 }
 
@@ -329,7 +330,7 @@ function createQuestions() {
         displayMessage("Sorry, No server was found :(, Please try refreshing the page");
     }
     else {
-        id("gameOptions").style.visibility = "visible";
+        id("gameOptions").style.display = "block";
     }
 }
 
