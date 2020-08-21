@@ -249,5 +249,20 @@ wss.on('connection', function connection(ws) {
 
   });
   ws.on("close",()=>{
+      if(ws.room == undefined) return;
+      // if in a lobby, take them out of the lobby
+      if(ws = ws.room.host){
+        for(player in ws.room.players){
+            if(ws.room.players[player] != ws.playerInfo){
+                ws.room.players[player].send(JSON.stringify({
+                    type:"close",
+                    message:"Host Disconnected"
+                }))
+                //delete ws.room.players[player].d
+            }
+        }
+      } else{
+
+      }
   });
 });
