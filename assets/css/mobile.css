@@ -5,6 +5,9 @@
 	color:white;
 }
 
-#gameID, #quizSelect, .joinButton, .closeButton {
-    width:auto;
+.gameID, #quizSelect, .joinBtn, .closeBtn  {
+    width:90vw !important;
+}
+html {
+    background-color:hotpink!important;
 }

@@ -331,6 +331,7 @@ function createQuestions() {
     }
     else {
         id("gameOptions").style.display = "block";
+        id("createQuestionsBtn").style.display = "none"
     }
 }
 
