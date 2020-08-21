@@ -1,17 +1,13 @@
-//DONT KNOW IF IT WOULD BE A GOOD WAY TO DO IT BUT I MADE A quizzes.json file which could just be an object called quizzes that we can add to 
 
 const WebSocket  = require("ws")
 const utils = require("./utils")
 const fs = require('fs');
-//IM NOT ON INTERNET DOING THIS SO CANT LOOK UP HOW TO DO ANYTHING...
-//CREATING AND CONNECTING TO LOBBIES IS WORKING!!!!!!!!!!!!!!
-
-//WE NEEDED CHECK IF A CLIENT DISCONNECTS, IF SO, IT SHOULD DELETE THEM, AND IF NO CLIENTS ARE IN A ROOM, DELETE THE ROOM (MAYBE AFTER CERTAIN PERIOD OF TIME)
 
 "use strict"
 
 console.log("[Server] Started Server!");
 const wss = new WebSocket.Server({ port: 8080 });
+var quizzes;
 let rooms = {};
 /*
 ROOMS DATA FORMAT:
@@ -43,7 +39,15 @@ WebSocket Object:
 
 }
 */
-
+fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, datas){
+    if (err){
+        console.log(err);
+    } 
+    else {
+        quizzes = JSON.parse(datas)
+        obj = JSON.parse(datas); //now it an object
+    }
+});
 
 wss.on('connection', function connection(ws) {
 
@@ -99,7 +103,7 @@ wss.on('connection', function connection(ws) {
                 // Step 2: create room
                 rooms[data.id] = {
                     players:{},//For storing players in room
-                    questions:data.questions,
+                    questions:{},
                     questionsYetToBeUsed:{},
                     questionsWithAnswershowing:{},
                     questionsWithQuestionShowing: {},
@@ -114,24 +118,16 @@ wss.on('connection', function connection(ws) {
                 ws.playerInfo = rooms[data.id].players[data.name];
                 console.log("User " + data.name + " created room " + data.id);
                 
-                fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, datas){
-                    if (err){
-                        console.log(err);
-                    } 
-                    else {
-                        obj = JSON.parse(datas); //now it an object
-                        /////////////////////////MAKE DIS BETTA PWEASE :)//////////////////////
-                        quizList = {};
-                        for (let i = 0; i < obj.quiz.length; i++) {
-                            quizList[i] = {name:obj.quiz[i].quizname};
-                        }
-                        ws.send(JSON.stringify({
-                            type:"create",
-                            status:"success",
-                            quizList:quizList
-                        }));
-                    }
-                });
+                
+                quizList = {};
+                for (quiz in quizzes.quiz) {
+                    quizList[i] = {name:quiz.quizname};
+                }
+                ws.send(JSON.stringify({
+                    type:"create",
+                    status:"success",
+                    quizList:quizList
+                }));
 
                 utils.sendPlayerInfo(ws.room);
                 break;
@@ -182,27 +178,23 @@ wss.on('connection', function connection(ws) {
                 }
                 console.log("New Quiz: ", quizname);
                 console.log("New Quiz: ", questions);
-                fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, data){
-                    if (err){
-                        console.log(err);
-                    } 
-                    else {
-                        obj = JSON.parse(data); //now it an object
-                        obj.quiz.push(quiz); //add some data
-                        json = JSON.stringify(obj); //convert it back to json
-                        console.log("JSON: " + json)
-                        fs.writeFile('../assets/quizzes/quizzes.json', json, function(error) {
-                            if(error) { 
-                              console.log('[write auth]: ' + err);
-                                if (fail) {
-                                    console.log('[write auth]: success');
-                                }
-                                else {
-                                    console.log('[write auth]: success');
-                                }
-                            }
-                        });
-                    }});
+                
+                // quizzes list is updated, save it
+                obj = JSON.parse(data); //now it an object
+                quizzes.push(quiz); //add some data
+                json = JSON.stringify(quizzes); //convert it back to json
+                fs.writeFile('../assets/quizzes/quizzes.json', json, function(error) {
+                    if(error) { 
+                        console.log('[write auth]: ' + err);
+                        if (fail) {
+                            console.log('[write auth]: Fael Fale FAIL');
+                        }
+                        else {
+                            console.log('[write auth]: success');
+                        }
+                    }
+                });
+                    
                 break;
             default:
                 break;
