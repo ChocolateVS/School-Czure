@@ -267,16 +267,15 @@ function startGame(room) {
     // get all the questions, and shuffle them up
     let allAnswers = Object.values(room.questionsWithAnswerShowing).concat(Object.values(room.questionsWithQuestionShowing))
     allAnswers = utils.shuffleArray(allAnswers);
-    console.log(allAnswers)
     let allQuestions = Object.keys(room.questionsWithQuestionShowing);
     allQuestions = utils.shuffleArray(allQuestions);
     // send copy to each client
     for(let client in room.players){
-        client.questionShowing = allQuestions.pop()
+        room.players[client].questionShowing = allQuestions.pop()
         room.players[client].socket.send(JSON.stringify(
             {
                 type:"initialSetup",
-                question:client.questionShowing,// should be string value
+                question:room.players[client].questionShowing,// should be string value
                 answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
             }
         ))
