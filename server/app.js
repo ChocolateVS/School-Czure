@@ -9,36 +9,7 @@ console.log("[Server] Started Server!");
 const wss = new WebSocket.Server({ port: 8080 });
 var quizzes;
 let rooms = {};
-/*
-ROOMS DATA FORMAT:
-{
-    myRoom:{
-        players:{
-            ben:{
-                ready:true,
-                socket:<WebSocket object>
-            },
-            ... more people
-        },
-        questions:{},// question:answer pairs
-        questionsYetToBeUsed:{},
-        questionsWithAnswershowing:{},
-        questionsWithQuestionShowing: {},
-        questionsFinished:{},
-        host:<reference to host's WebSocket>
-    },
-    SomeoneElsesRoom:{...},
-    ...
-}
-WebSocket Object:
-{
-    ... all the normal websocket stuff, plus (hopefully if they connected first):
-    room:<Reference to one of the rooms in <rooms> global var>
-    playerInfo:<Reference to one of the players in one of the rooms>
 
-
-}
-*/
 fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, datas){
     if (err){
         console.log(err);
@@ -105,7 +76,7 @@ wss.on('connection', function connection(ws) {
                     players:{},//For storing players in room
                     questions:{},
                     questionsYetToBeUsed:{},
-                    questionsWithAnswershowing:{},
+                    questionsWithAnswerShowing:{},
                     questionsWithQuestionShowing: {},
                     questionsFinished:{},
                     host:ws,// this websocket is the host
@@ -118,15 +89,10 @@ wss.on('connection', function connection(ws) {
                 ws.playerInfo = rooms[data.id].players[data.name];
                 console.log("User " + data.name + " created room " + data.id);
                 
-                
-                quizList = {};
-                for (quiz in quizzes.quiz) {
-                    quizList[i] = {name:quiz.quizname};
-                }
                 ws.send(JSON.stringify({
                     type:"create",
                     status:"success",
-                    quizList:quizList
+                    quizList:Object.keys(quizzes)
                 }));
 
                 utils.sendPlayerInfo(ws.room);
@@ -143,7 +109,9 @@ wss.on('connection', function connection(ws) {
                 break;
             case "startGame":
                 //check if all players are ready
-                var selectedQuiz;
+                var selectedQuiz = quizzes[data.selected]
+                if(selectedQuiz == undefined) console.error("Tried to get quiz " + data.selected + " but not found")
+                // check if everyone is ready
                 let allReady = true;
                 for (let playername in rooms[data.id].players) {
                     if (!rooms[data.id].players[playername].ready) allReady = false;
@@ -157,31 +125,22 @@ wss.on('connection', function connection(ws) {
                 }
                 
                 //GET THE QUESTIONS !!!!!!!
-                fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, datas){
-                    if (err){console.log(err);} 
-                    else {
-                        obj = JSON.parse(datas); //now it an object
-                        selectedQuiz = obj.quiz[data.selected];
-                        ws.room.questionsYetToBeUsed = selectedQuiz.questions;// shallow copy
-                        console.log("questions", selectedQuiz);
-                        startGame(ws.room);
-                    }
-                });
+                ws.room.questionsYetToBeUsed = {...selectedQuiz};// shallow copy, i.e new object referencing the same sub objects
+                console.log("questions", selectedQuiz);
+                startGame(ws.room);
                 break;
             case "newquiz":
                 let quizname = data.quizname;
                 let questions = data.questions;
+                let quiz = {};
                 
-                let quiz = {
-                    quizname: quizname,
-                    questions: questions
+                for(var i in questions){
+                    quiz[i.question] = i.answer;
                 }
                 console.log("New Quiz: ", quizname);
-                console.log("New Quiz: ", questions);
                 
                 // quizzes list is updated, save it
-                obj = JSON.parse(data); //now it an object
-                quizzes.push(quiz); //add some data
+                quizzes.push(quiz);
                 json = JSON.stringify(quizzes); //convert it back to json
                 fs.writeFile('../assets/quizzes/quizzes.json', json, function(error) {
                     if(error) { 
@@ -196,6 +155,49 @@ wss.on('connection', function connection(ws) {
                 });
                     
                 break;
+            case "answerClicked":
+                let completedQuestion = false
+                for(let q in ws.room.questionsWithQuestionShowing){
+                    if(ws.room.questionsWithQuestionShowing[q] == data.answer){
+                        // move to questionsFinished
+                        completedQuestion = q;
+                        ws.room.questionsFinished[q] = ws.room.questionsWithQuestionShowing[q];
+                        delete ws.room.questionsWithQuestionShowing[q];
+                        break;
+                    }
+                }
+                if(completedQuestion){
+                    // we need to find a new question & answer to replace this question!
+                    newAnswer = utils.randomObjectKey(ws.room.questionsYetToBeUsed)
+                    utils.moveProperty(newAnswer,ws.room.questionsYetToBeUsed,ws.room.questionsWithAnswerShowing)
+                    newQuestion = utils.randomObjectKey(ws.room.questionsWithAnswerShowing)
+                    utils.moveProperty(newAnswer,ws.room.questionsWithQuestionShowing,ws.room.questionsWithQuestionShowing)
+                    // we also need to move this question to questionsFinished
+                    utils.moveProperty(completedQuestion,ws.room.questionsWithQuestionShowing,ws.room.questionsFinished)
+                    // we need to send the person with that question (remember people have answers for other peoples questions)
+                    // a new question
+                    for(let p in ws.room.players){
+                        if(ws.room.players[p].questionShowing == completedQuestion){
+                            ws.room.players[p].socket.send(JSON.stringify({
+                                type:"newQuestion",
+                                question:newQuestion
+                            }))
+                            break;
+                        }
+                    }
+                    // we also need to send this guy a new answer
+                    ws.send(JSON.stringify({
+                        type:"newAnswer",
+                        replaces:data.answer,
+                        answer:newAnswer,
+                    }))
+                    // OK all done I think
+
+                }else{
+                    ws.send(JSON.stringify({
+                        type:"incorrectAnswer"
+                    }))
+                }
             default:
                 break;
         }
@@ -251,29 +253,30 @@ wss.on('connection', function connection(ws) {
 function startGame(room) {
     let playerCount = Object.keys(room.players).length;
     let key;
+    // choose 3 answers to show per player
     for(let i = 0; i < playerCount * 3;i++){
         key = utils.randomObjectKey(room.questionsYetToBeUsed);
-        room.questionsWithAnswershowing[key] = room.questionsYetToBeUsed[key];
-        delete room.questionsYetToBeUsed[key]// it is now a question with answer showing
+        utils.moveProperty(key,room.questionsYetToBeUsed,room.questionsWithAnswerShowing)
     }
-    // choose 1 question per player to show
+    // choose 1 question (and corresponding answer) to show
     for(let i = 0; i < playerCount; i++){
         key = utils.randomObjectKey(room.questionsYetToBeUsed);
-        room.questionsWithQuestionShowing[key] = room.questionsYetToBeUsed[key];
-        delete room.questionsYetToBeUsed[key]// it is now a question with question showing
+        utils.moveProperty(key,room.questionsYetToBeUsed,room.questionsWithQuestionShowing)
     }
     // get all the answers, (from answersShowing and QuesitionsShowing) and shuffle them up,
     // get all the questions, and shuffle them up
-    let allAnswers = Object.values(room.questionsWithAnswershowing).concat(Object.values(room.questionsWithQuestionShowing))
+    let allAnswers = Object.values(room.questionsWithAnswerShowing).concat(Object.values(room.questionsWithQuestionShowing))
     allAnswers = utils.shuffleArray(allAnswers);
+    console.log(allAnswers)
     let allQuestions = Object.keys(room.questionsWithQuestionShowing);
     allQuestions = utils.shuffleArray(allQuestions);
     // send copy to each client
     for(let client in room.players){
+        client.questionShowing = allQuestions.pop()
         room.players[client].socket.send(JSON.stringify(
             {
                 type:"initialSetup",
-                question:allQuestions.pop(),// should be string value
+                question:client.questionShowing,// should be string value
                 answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
             }
         ))

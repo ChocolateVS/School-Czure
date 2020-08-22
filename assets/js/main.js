@@ -107,16 +107,16 @@ socket.onmessage = function(event) {
                     id("startBtn").style.display = "inline-block";// only start quiz if host
                     id("quizSelect").style.display = "inline-block";// only select quiz if host
                     console.log("Succesfully Created Room!");
-                    console.log(data.quizList[0].name);
+                    console.log(data.quizList[0]);
 
                     let count = 0;
                     for (let element in data.quizList) {
                         console.log("JHI");
                         
                         var option = document.createElement("option");
-                        option.innerHTML = data.quizList[element].name;
-                        option.setAttribute("value", count);
-                        console.log(data.quizList[element].name);
+                        option.innerHTML = data.quizList[element];
+                        option.setAttribute("value",data.quizList[element]);
+                        console.log(data.quizList[element]);
                         id("quizSelect").appendChild(option);
                         count++;
                     };

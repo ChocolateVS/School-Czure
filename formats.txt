@@ -1,0 +1,28 @@
+ROOMS DATA FORMAT:
+{
+    myRoom:{
+        players:{
+            ben:{
+                ready:true,
+                socket:<WebSocket object>
+                questionShowing:"What is 2 + 2"
+            },
+            ... more people
+        },
+        questions:{},// question:answer pairs
+        questionsYetToBeUsed:{},
+        questionsWithAnswershowing:{},
+        questionsWithQuestionShowing: {},
+        questionsFinished:{},
+        host:<reference to host's WebSocket>
+    },
+    SomeoneElsesRoom:{...},
+    ...
+}
+WebSocket Object:
+{
+    ... all the normal websocket stuff, plus (hopefully if they connected first):
+    room:<Reference to one of the rooms in <rooms> global var>
+    playerInfo:<Reference to one of the players in one of the rooms>
+}
+*/

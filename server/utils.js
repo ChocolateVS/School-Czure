@@ -55,3 +55,9 @@ exports.randomObjectKey = function (obj) {
     var keys = Object.keys(obj);
     return keys[ keys.length * Math.random() << 0];
 };
+
+// move object property from one object to another
+exports.moveProperty = function (key, source,destination){
+    destination[key] = source[key]
+    delete source[key]
+}

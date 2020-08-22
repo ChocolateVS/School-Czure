@@ -1,1 +1,12 @@
-{"quiz":[{"quizname":"Elements on the periodic table","questions":{"1":{"question":"Chemical Formula For Gold","answer":"Au"},"2":{"question":"Chemical Formula For Silver","answer":"Ag"},"3":{"question":"Chemical Formula For Aluminium","answer":"Al"},"4":{"question":"Chemical Formula For Argon","answer":"Ar"},"5":{"question":"Chemical Formula For Platinum","answer":"Pt"},"6":{"question":"Chemical Formula For Titanium","answer":"Ti"},"7":{"question":"Chemical Formula For Potassium","answer":"K"},"8":{"question":"Chemical Formula For Phosphorus","answer":"P"},"9":{"question":"Chemical Formula For Berylium","answer":"Be"},"10":{"question":"Chemical Formula For Boron","answer":"B"}}},{"quizname":"Other random quiz","questions":{"1":{"question":"Chemical Formula For Gold","answer":"Au"},"2":{"question":"Chemical Formula For Silver","answer":"Ag"},"3":{"question":"Chemical Formula For Aluminium","answer":"Al"},"4":{"question":"Chemical Formula For Argon","answer":"Ar"},"5":{"question":"Chemical Formula For Platinum","answer":"Pt"},"6":{"question":"Chemical Formula For Titanium","answer":"Ti"},"7":{"question":"Chemical Formula For Potassium","answer":"K"},"8":{"question":"Chemical Formula For Phosphorus","answer":"P"},"9":{"question":"Chemical Formula For Berylium","answer":"Be"},"10":{"question":"Chemical Formula For Boron","answer":"B"}}},{"quizname":"Addition","questions":{"1":{"question":"1 + 1","answer":"2"},"2":{"question":"2 + 2","answer":"4"},"3":{"question":"3 + 3","answer":"6"},"4":{"question":"4 + 4","answer":"8"},"5":{"question":"5 + 5","answer":"10"},"6":{"question":"6 + 6","answer":"12"},"7":{"question":"7 + 7","answer":"14"},"8":{"question":"8 + 8","answer":"16"},"9":{"question":"9 + 9","answer":"18"},"10":{"question":"10 + 10","answer":"20"}}}]}
+{"Elements on periodic table": {
+    "argon":"Ar",
+    "gold":"Au",
+    "Silver":"Ag",
+    "copper":"Cu",
+    "Krypton":"Kr",
+    "Awsomeium":"Aw",
+    "Skuxium":"Xx",
+    "Potassium":"K",
+    "Phosphrous":"P",
+    "Hydrogen":"H"
+}}
