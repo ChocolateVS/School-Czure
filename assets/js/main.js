@@ -233,6 +233,7 @@ function createRoom(roomID, userID) {
 
 function displayError(action, error) {
     console.log("DISPLAYING ERROR");
+    id("message").style.display = "block";
     id("messagetxt").style.display = "block";
     id("loadingGIF").style.display = "none";
     id("errorMessage").style.display = "block";
@@ -241,6 +242,7 @@ function displayError(action, error) {
 
 function displayMessage(action) {
     console.log("DISPLAYING MESSAGE");
+    id("message").style.display = "block";
     id("messagetxt").style.display = "block";
     id("loadingGIF").style.display = "none";
     id("errorMessage").style.display = "block";
