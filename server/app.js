@@ -12,7 +12,13 @@ let rooms = {};
 
 fs.readFile('../assets/quizzes/quizzes.json', 'utf8', function readFileCallback(err, datas){
     if (err){
-        console.log(err);
+        if(err.errno = -2){
+            quizzes = {};// likely 404 file not found
+            // JK 404 is a HTTP thing, but you get the idea
+            console.log("Quizes.json not found, assuming no quizzes")
+        } else {
+            console.log(err);
+        }
     } 
     else {
         quizzes = JSON.parse(datas)
@@ -132,15 +138,32 @@ wss.on('connection', function connection(ws) {
             case "newquiz":
                 let quizname = data.quizname;
                 let questions = data.questions;
+                // check if enouhg questions
+                if(questions.length < 10){
+                    ws.send(JSON.stringify({
+                        type:"message",
+                        message:"Not enough questions"
+                    }))
+                    break;
+                }
                 let quiz = {};
                 
-                for(var i in questions){
+                for(var i of questions){
                     quiz[i.question] = i.answer;
                 }
                 console.log("New Quiz: ", quizname);
                 
-                // quizzes list is updated, save it
-                quizzes.push(quiz);
+                // add to quizzes if doesnt exist
+                if(quizzes[quizname] == undefined)
+                    quizzes[quizname] = quiz;
+                else {
+                    ws.send(JSON.stringify({
+                        type:"message",
+                        message:"That quiz is already taken!"
+                    }))
+                    break;
+                }
+                // save it
                 json = JSON.stringify(quizzes); //convert it back to json
                 fs.writeFile('../assets/quizzes/quizzes.json', json, function(error) {
                     if(error) { 
@@ -153,7 +176,9 @@ wss.on('connection', function connection(ws) {
                         }
                     }
                 });
-                    
+                ws.send(JSON.stringify({
+                    type:"createQuiz",status:"success"
+                }))
                 break;
             case "answerClicked":
                 let completedQuestion = false

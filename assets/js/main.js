@@ -154,6 +154,14 @@ socket.onmessage = function(event) {
             break;
         case "quizzes":
             displayMessage("QUIZZES RECIEVED");
+        case "createQuiz":
+            if(data.status == "success"){
+                displayMessage("Quiz creation successful");
+                hideQuizCreator();
+            } else {
+                displayError("Something went wrong.")
+            }
+            break;
         default:
             console.warn("Message type:" + data.type +" not yet implemented")
            break;
@@ -333,24 +341,25 @@ function createQuestions() {
     }
     else {
         id("gameOptions").style.display = "block";
-        id("createQuestionsBtn").style.display = "none"
+        id("home").style.display = "none";
     }
+}
+function hideQuizCreator(){
+    id("gameOptions").style.display = "none";
+    id("home").style.display = "flex";
 }
 
 function createNewQuiz() {
-    var questions = {
-
-    };
+    var questions = [];
     for (var i = 1; i <= numQuestions; i++) {
         var question = document.getElementsByName("question" + i)[0].value;
         var answer = document.getElementsByName("answer" + i)[0].value;
         var quizname = id("quizName").value;
         if (question != "" && answer != "") {
-            var pair = {
+            questions.push({
                 question: question,
                 answer: answer
-            }
-            questions[i] = pair;
+            });
         }
     }
     socket.send(JSON.stringify(

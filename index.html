@@ -16,23 +16,7 @@
             </div>
         </center>
     </div>
-    <div id="gameOptions">
-        <center>
-            <div id="questionsForm">
-                <form id="questionsForm" name="questionsForm" onsubmit="createNewQuiz()" method="post">
-                    <p id="introHead">Quiz Creator!</p><br>
-                    <p id="intro">Please add a minimum of 10 questions to your quiz! </p>
-                    <input class="questionInput" id="quizName" type="text" placeholder="Quiz Name:" required>
-                    <div id="questions">
-                        
-                    </div>
-                    <button id="newQuestion" onclick="addQuestion(0)"><img src="assets/images/plus.svg" width="40px" height="40px"></button>
-                    <br>
-                    <input name="save" type="submit" value="SAVE" class="closeBtn" id="closeBtn">
-                </form>
-            </div>
-        </center>
-    </div>
+    
     <body>
 
         <section id="home">
@@ -66,7 +50,23 @@
             <input name="readyBtn" type="submit" value="READY UP" class="joinBtn" onclick="readyup()" id="readyBtn"><br>
             <input name="startBtn" type="submit" value="START" class="joinBtn" onclick="startGame()" id="startBtn">
         </section>
-            
+        <section id="gameOptions">
+            <center>
+                <div id="questionsForm">
+                    <form id="questionsForm" name="questionsForm" onsubmit="createNewQuiz()" method="post">
+                        <p id="introHead">Quiz Creator!</p><br>
+                        <p id="intro">Please add a minimum of 10 questions to your quiz! </p>
+                        <input class="questionInput" id="quizName" type="text" placeholder="Quiz Name:" required>
+                        <div id="questions">
+                            
+                        </div>
+                        <button id="newQuestion" onclick="addQuestion(0)"><img src="assets/images/plus.svg" width="40px" height="40px"></button>
+                        <br>
+                        <input name="save" type="submit" value="SAVE" class="closeBtn" id="closeBtn">
+                    </form>
+                </div>
+            </center>
+        </section>
     </body>
     <!-- <div class="egg" id="topLeft"></div>
     <div class="egg" id="topRight"></div>
