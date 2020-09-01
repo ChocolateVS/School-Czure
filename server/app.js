@@ -7,6 +7,7 @@ const fs = require('fs');
 
 console.log("[Server] Started Server!");
 const wss = new WebSocket.Server({ port: 8080 });
+const timeoutLength = 5000;
 var quizzes;
 let rooms = {};
 
@@ -85,6 +86,7 @@ wss.on('connection', function connection(ws) {
                     questionsWithAnswerShowing:{},
                     questionsWithQuestionShowing: {},
                     questionsFinished:{},
+                    numMissed:0,
                     host:ws,// this websocket is the host
                 }
 
@@ -129,11 +131,51 @@ wss.on('connection', function connection(ws) {
                     }))
                     return;
                 }
-                
+                let playerCount = Object.keys(room.players).length;
+                let numQuestions =Object.keys(selectedQuiz).length
+                if(numQuestions < playerCount * 4){
+                    ws.send(JSON.stringify({
+                        type:"message",message:"This quiz only has " + numQuestions + " questions. You need a quiz long enough for " + playerCount +" players."
+                    }))
+                }
+
+
                 //GET THE QUESTIONS !!!!!!!
                 ws.room.questionsYetToBeUsed = {...selectedQuiz};// shallow copy, i.e new object referencing the same sub objects
                 console.log("questions", selectedQuiz);
-                startGame(ws.room);
+                let room = ws.room
+                
+                let key;
+                // choose 3 answers to show per player
+                for(let i = 0; i < playerCount * 3;i++){
+                    key = utils.randomObjectKey(room.questionsYetToBeUsed);
+                    utils.moveProperty(key,room.questionsYetToBeUsed,room.questionsWithAnswerShowing)
+                }
+                // choose 1 question (and corresponding answer) to show
+                for(let i = 0; i < playerCount; i++){
+                    key = utils.randomObjectKey(room.questionsYetToBeUsed);
+                    utils.moveProperty(key,room.questionsYetToBeUsed,room.questionsWithQuestionShowing)
+                }
+                // get all the answers, (from answersShowing and QuesitionsShowing) and shuffle them up,
+                // get all the questions, and shuffle them up
+                let allAnswers = Object.values(room.questionsWithAnswerShowing).concat(Object.values(room.questionsWithQuestionShowing))
+                allAnswers = utils.shuffleArray(allAnswers);
+                let allQuestions = Object.keys(room.questionsWithQuestionShowing);
+                allQuestions = utils.shuffleArray(allQuestions);
+                // send copy to each client
+                for(let client in room.players){
+                    room.players[client].questionShowing = allQuestions.pop()
+                    room.players[client].socket.send(JSON.stringify(
+                        {
+                            type:"initialSetup",
+                            question:room.players[client].questionShowing,// should be string value
+                            answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
+                        }
+                    ))
+                    utils.addQuestionTimeout(room.players[client].socket,timeoutFunction,timeoutLength)
+                }
+                // start timer!!!
+                ws.room.startTime = new Date().getTime();
                 break;
             case "newquiz":
                 let quizname = data.quizname;
@@ -181,48 +223,75 @@ wss.on('connection', function connection(ws) {
                 }))
                 break;
             case "answerClicked":
+                //checks first
+                // check if the answer clicked is a completed question
                 let completedQuestion = false
                 for(let q in ws.room.questionsWithQuestionShowing){
                     if(ws.room.questionsWithQuestionShowing[q] == data.answer){
-                        // move to questionsFinished
+                        // if so, move it to questionsFinished
                         completedQuestion = q;
                         ws.room.questionsFinished[q] = ws.room.questionsWithQuestionShowing[q];
                         delete ws.room.questionsWithQuestionShowing[q];
                         break;
                     }
                 }
-                if(completedQuestion){
-                    // we need to find a new question & answer to replace this question!
-                    newAnswer = utils.randomObjectKey(ws.room.questionsYetToBeUsed)
+                // if not, send incorrect answer
+                if(!completedQuestion){
+                    ws.send(JSON.stringify({
+                        type:"incorrectAnswer"
+                    }))
+                    return;
+                }
+                // move this question to questionsFinished
+                utils.moveProperty(completedQuestion,ws.room.questionsWithQuestionShowing,ws.room.questionsFinished)
+
+                // we need to find a new question & answer to replace this question!
+                let newAnswer = utils.randomObjectKey(ws.room.questionsYetToBeUsed)
+                if(newAnswer != undefined){
+                    //still more answers to show, send this guy a new answer
                     utils.moveProperty(newAnswer,ws.room.questionsYetToBeUsed,ws.room.questionsWithAnswerShowing)
-                    newQuestion = utils.randomObjectKey(ws.room.questionsWithAnswerShowing)
-                    utils.moveProperty(newAnswer,ws.room.questionsWithQuestionShowing,ws.room.questionsWithQuestionShowing)
-                    // we also need to move this question to questionsFinished
-                    utils.moveProperty(completedQuestion,ws.room.questionsWithQuestionShowing,ws.room.questionsFinished)
-                    // we need to send the person with that question (remember people have answers for other peoples questions)
-                    // a new question
-                    for(let p in ws.room.players){
-                        if(ws.room.players[p].questionShowing == completedQuestion){
-                            ws.room.players[p].socket.send(JSON.stringify({
-                                type:"newQuestion",
-                                question:newQuestion
-                            }))
-                            break;
-                        }
-                    }
-                    // we also need to send this guy a new answer
                     ws.send(JSON.stringify({
                         type:"newAnswer",
                         replaces:data.answer,
                         answer:newAnswer,
                     }))
-                    // OK all done I think
-
-                }else{
-                    ws.send(JSON.stringify({
-                        type:"incorrectAnswer"
-                    }))
                 }
+                
+                // get a new question
+                let newQuestion = utils.randomObjectKey(ws.room.questionsWithAnswerShowing)
+                
+                // give the guy whose question was just answered a new question
+                for(let p in ws.room.players){
+                    player = ws.room.players[p]
+                    if(player.questionShowing == completedQuestion){
+                        player.socket.send(JSON.stringify({
+                            type:"newQuestion",
+                            question:newQuestion == undefined ? "" : newQuestion ,// if there is a new question, that is
+                            timeout:timeoutLength
+                        }))
+                        utils.clearQuestionTimeout(ws.room.players[p].socket)
+                        utils.addQuestionTimeout(ws.room.players[p].socket,timeoutFunction,timeoutLength)
+                        break;
+                    }
+                }
+                // put the new question one with question showing
+                if(newQuestion != undefined)
+                    utils.moveProperty(newQuestion,ws.room.questionsWithAnswerShowing,ws.room.questionsWithQuestionShowing)
+                else {
+                    // else, there might not be any more quesitons showing, in which case finished!
+                    if(Object.keys(ws.room.questionsWithQuestionShowing).length == 0){
+                        // Quiz is done!
+                        utils.broadcast(JSON.stringify({
+                            type:"finished",
+                            // missing a question gives a penalty equal to 2 seconds
+                            // score in format: number of questions per second per player (multiplied by 10000)
+                            score:Object.keys(ws.room.questionsFinished).length * 10000 / ((new Date().getTime - ws.room.startTime) + ws.room.questionsMissed*2000)/ Object.keys(ws.room.playes).length ,
+                        }),ws.room)
+                    }
+                }
+                
+
+                break;
             default:
                 break;
         }
@@ -234,7 +303,7 @@ wss.on('connection', function connection(ws) {
   });
   ws.on("close",()=>{
       if(ws.room == undefined) return;
-      
+      utils.clearQuestionTimeout(ws);
       if(ws = ws.room.host){
           // if a host, delete room (AND ALL REFERENCES TO ROOM)
         for(player in ws.room.players){
@@ -275,34 +344,20 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-function startGame(room) {
-    let playerCount = Object.keys(room.players).length;
-    let key;
-    // choose 3 answers to show per player
-    for(let i = 0; i < playerCount * 3;i++){
-        key = utils.randomObjectKey(room.questionsYetToBeUsed);
-        utils.moveProperty(key,room.questionsYetToBeUsed,room.questionsWithAnswerShowing)
-    }
-    // choose 1 question (and corresponding answer) to show
-    for(let i = 0; i < playerCount; i++){
-        key = utils.randomObjectKey(room.questionsYetToBeUsed);
-        utils.moveProperty(key,room.questionsYetToBeUsed,room.questionsWithQuestionShowing)
-    }
-    // get all the answers, (from answersShowing and QuesitionsShowing) and shuffle them up,
-    // get all the questions, and shuffle them up
-    let allAnswers = Object.values(room.questionsWithAnswerShowing).concat(Object.values(room.questionsWithQuestionShowing))
-    allAnswers = utils.shuffleArray(allAnswers);
-    let allQuestions = Object.keys(room.questionsWithQuestionShowing);
-    allQuestions = utils.shuffleArray(allQuestions);
-    // send copy to each client
-    for(let client in room.players){
-        room.players[client].questionShowing = allQuestions.pop()
-        room.players[client].socket.send(JSON.stringify(
-            {
-                type:"initialSetup",
-                question:room.players[client].questionShowing,// should be string value
-                answers:[allAnswers.pop(),allAnswers.pop(),allAnswers.pop(),allAnswers.pop()]// should be array of strings
-            }
-        ))
-    }
+
+function timeoutFunction(){
+    // This function needs to be bound to a websocket, so "this" refers to the websocket object
+    // send them a timeout notification and a new question
+    this.room.numMissed++;
+    let newQuestion = utils.randomObjectKey(this.room.questionsWithAnswerShowing)
+    // move new question to WithQUestionShowing, move old (timeouted) question to WithAnswerShowing
+    utils.moveProperty(newQuestion,this.room.questionsWithAnswerShowing,this.room.questionsWithQuestionShowing)
+    utils.moveProperty(this.playerInfo.questionShowing,this.room.questionsWithQuestionShowing,this.room.questionsWithAnswerShowing)
+    this.playerInfo.questionShowing = newQuestion;
+    this.send(JSON.stringify({
+        type:"timeout",
+        newQuestion:newQuestion,
+        timeout:timeoutLength,
+    }))
+    utils.addQuestionTimeout(this,timeoutFunction,timeoutLength)
 }

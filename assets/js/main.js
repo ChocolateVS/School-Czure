@@ -111,8 +111,6 @@ socket.onmessage = function(event) {
 
                     let count = 0;
                     for (let element in data.quizList) {
-                        console.log("JHI");
-                        
                         var option = document.createElement("option");
                         option.innerHTML = data.quizList[element];
                         option.setAttribute("value",data.quizList[element]);

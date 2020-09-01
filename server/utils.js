@@ -2,6 +2,11 @@
 //////////////////////////
 // WS/Room related
 //////////////////////////
+exports.broadcast = (message,room) =>{
+    for(let player in room.players){
+        room.players[player].socket.send(message)
+    }
+}
 exports.sendPlayerInfo =  (room)=> {
     var playerlist = [];
     // have to turn it into an array instead of object fto get rid of reference to WebSocket in players object
@@ -12,15 +17,20 @@ exports.sendPlayerInfo =  (room)=> {
             ready:room.players[playername].ready
         })
     }
-    var myjson = JSON.stringify({
+    exports.broadcast(JSON.stringify({
         type:"playerlist",
         players:playerlist
-    })
-    
-    for(let player in room.players){
-        room.players[player].socket.send(myjson)
-    }
+    }))
 }
+
+exports.addQuestionTimeout = (ws,fn,milliseconds) =>{
+    ws.playerInfo.timeout = setTimeout(fn.bind(ws),milliseconds);
+}
+exports.clearQuestionTimeout = (ws) =>{
+    if(ws.playerInfo.timeout == undefined) return;
+    clearTimeout(ws.playerInfo.timeout)
+    ws.playerInfo.timeout = undefined;
+} 
 
 
 /////////////////////////

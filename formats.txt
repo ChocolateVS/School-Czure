@@ -2,10 +2,11 @@ ROOMS DATA FORMAT:
 {
     myRoom:{
         players:{
-            ben:{
+            ben:{ // This section can also be accessed through ben's ws.playerInfo property
                 ready:true,
                 socket:<WebSocket object>
                 questionShowing:"What is 2 + 2"
+                timeout: <result of setTimeout>
             },
             ... more people
         },
@@ -14,6 +15,8 @@ ROOMS DATA FORMAT:
         questionsWithAnswershowing:{},
         questionsWithQuestionShowing: {},
         questionsFinished:{},
+        startTime:<num milliseconds>,
+        numMissed:<number>,
         host:<reference to host's WebSocket>
     },
     SomeoneElsesRoom:{...},
