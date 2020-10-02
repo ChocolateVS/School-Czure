@@ -133,6 +133,12 @@ wss.on('connection', function connection(ws) {
                 }
                 let playerCount = Object.keys(ws.room.players).length;
                 let numQuestions = Object.keys(selectedQuiz).length
+                
+                if(playerCount <= 1){
+                    ws.send(JSON.stringify({
+                        type:"message",message:"This quiz requires a minimum of 2 players, please return with some friends :)"
+                    }))
+                }
                 if(numQuestions < playerCount * 4){
                     ws.send(JSON.stringify({
                         type:"message",message:"This quiz only has " + numQuestions + " questions. You need a quiz of " + playerCount * 4 + "questions to play with " + playerCount +" players."
