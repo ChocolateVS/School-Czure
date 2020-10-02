@@ -20,7 +20,7 @@ exports.sendPlayerInfo =  (room)=> {
     exports.broadcast(JSON.stringify({
         type:"playerlist",
         players:playerlist
-    }))
+    }),room)
 }
 
 exports.addQuestionTimeout = (ws,fn,milliseconds) =>{
