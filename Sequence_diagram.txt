@@ -1,6 +1,6 @@
 // Paste this into sequencediagram.org
 
-title The diagram of how Skool Czure works for the benefit of the uninformed.
+title A diagram of how Skool Czure works for the benefit of the uninformed.
 
 
 
@@ -18,10 +18,24 @@ Player->Server:connect{id,name}
 Server->Player:connect{status,message}
 Server->Players:playerlist{[{name,ready},...]}
 
+
+Host->Server:startGame{selected:"quiz1"}
+Server->Host:message{"players not ready"}
+
 Server->Player:ready
 Server->Players:playerlist{[{name,ready},...]}
 
+Host->Server:startGame{selected:"quiz1"}
+Server->Players:initialSetup{question,answers[...,...]}
 
+note over Server,Player: If the player takes too long:
+Server->Player:timeout{newQuestion,timeout}
+note over Server,Player: When the player answers the question:
+Player->Server:answerClicked{answer}
+Server->Player:newAnswer{replaces (old ans),answer}
+Server->Player:newQuestion{question,timeout}
+note over Server,Players: n.b newQuestion probably goes to a different player
 
+note over Server,Players:When game finished:
+Server->Players:finished{score}
 
-//note over Bob,Double click to edit text:Click the **?** icon for **instructions** and **examples**
