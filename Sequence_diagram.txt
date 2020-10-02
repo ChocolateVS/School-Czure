@@ -1,0 +1,27 @@
+// Paste this into sequencediagram.org
+
+title The diagram of how Skool Czure works for the benefit of the uninformed.
+
+
+
+participant Host
+participant Server
+participant Player
+participant Players
+
+
+
+Host->Server:create{id,name}
+Server->Host:create{status:success,quizlist:["quiznames"]}
+
+Player->Server:connect{id,name}
+Server->Player:connect{status,message}
+Server->Players:playerlist{[{name,ready},...]}
+
+Server->Player:ready
+Server->Players:playerlist{[{name,ready},...]}
+
+
+
+
+//note over Bob,Double click to edit text:Click the **?** icon for **instructions** and **examples**
