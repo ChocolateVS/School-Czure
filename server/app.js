@@ -285,7 +285,7 @@ wss.on('connection', function connection(ws) {
                             type:"finished",
                             // missing a question gives a penalty equal to 2 seconds
                             // score in format: number of questions per second per player (multiplied by 10000)
-                            score:Object.keys(ws.room.questionsFinished).length * 10000 / ((new Date().getTime - ws.room.startTime) + ws.room.questionsMissed*2000)/ Object.keys(ws.room.playes).length ,
+                            score:Object.keys(ws.room.questionsFinished).length * 10000 / ((new Date().getTime - ws.room.startTime) + ws.room.questionsMissed*2000)/ Object.keys(ws.room.playes).length,
                         }),ws.room)
                     }
                 }
@@ -297,7 +297,7 @@ wss.on('connection', function connection(ws) {
         }
     }
     catch (ex) {
-     console.log("[Server] Error" + ex);//Data was most likely not in json format;
+     console.log("[Server] Error, Line: " + ex.stack);//Data was most likely not in json format;
     }
 
   });
