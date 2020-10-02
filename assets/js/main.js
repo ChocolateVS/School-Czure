@@ -160,6 +160,10 @@ socket.onmessage = function(event) {
                 displayError("Something went wrong.")
             }
             break;
+            
+        case "question":
+            
+            break;
         default:
             console.warn("Message type:" + data.type +" not yet implemented")
            break;
